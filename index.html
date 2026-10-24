@@ -321,8 +321,11 @@ function drawSky(){
 
 
 /* ---------- background photos (Unsplash, free licence) ---------- */
-/* Which collections to show: lakes, peaks, golden, night, coast, meadows */
-var PHOTO_SETS=["lakes","golden","meadows"];
+/* Collections by time of day, timed from today's prayer times in Riyadh:
+   golden = Fajr to an hour after sunrise, and the hour around Maghrib
+   night  = from 20 min after Maghrib until Fajr
+   day    = everything else */
+var SCHEDULE={day:["lakes","peaks","coast","meadows"],golden:["golden"],night:["night"]};
 /* Photo collections (Unsplash, free licence). Each entry: [image id, photographer] */
 var COLLECTIONS={
  lakes:{ar:"جبال وبحيرات",photos:[
@@ -347,23 +350,30 @@ var COLLECTIONS={
   ["1464254786740-b97e5420c299","Christian Joudrey"],["1637956254750-641851c59fa4","Bernd Dittrich"],
   ["1686012216030-aa93a1283560","Rebecca Calderon"]]},
  meadows:{ar:"مروج خضراء",photos:[
-  ["1610552050890-fe99536c2615","lucas wesney"],["1625427333534-c0a91e7d9cb4","Alexey Fedenkov"],
-  ["1660966237295-97cb5585980a","Max"],["1602085336909-922a9260e146","David Vives"],
-  ["1600887405075-cbffd36a061b","Thomas Galler"],["1719253293689-40e204db520d","Bernd Dittrich"],
-  ["1478059299873-f047d8c5fe1a","Mark Basarab"]]}};
+  ["1610552050890-fe99536c2615","lucas wesney"]]}};
 var SET_ORDER=["lakes","peaks","golden","night","coast","meadows"];
 function unsplashURL(id,w,h,q){return"https://images.unsplash.com/photo-"+id+"?w="+w+"&h="+h+"&fit=crop&crop=entropy&q="+q+"&fm=jpg"}
 
-var pool=[],phIdx=0,phLayer=0;
+var pools={},pidx={day:0,golden:0,night:0},pool=[],phIdx=0,phLayer=0,curPeriod=null;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[r];a[r]=t}return a}
 function loadPhotoInfo(done){
-  PHOTO_SETS.forEach(function(k){var set=COLLECTIONS[k];if(!set)return;
-    set.photos.forEach(function(p){pool.push({src:unsplashURL(p[0],3840,2160,82),title:"",artist:p[1],lic:"Unsplash"})})});
-  for(var i=pool.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[r];pool[r]=t}
+  Object.keys(SCHEDULE).forEach(function(per){var list=[];
+    SCHEDULE[per].forEach(function(k){var set=COLLECTIONS[k];if(!set)return;
+      set.photos.forEach(function(p){list.push({src:unsplashURL(p[0],3840,2160,82),artist:p[1]})})});
+    pools[per]=shuffle(list)});
   done()}
+function periodNow(){
+  var now=Date.now(),t={};dayPrayers(now).forEach(function(x){t[x.k]=x.at});
+  var M=6e4;
+  if(now>=t.fajr&&now<t.sunrise+60*M)return"golden";
+  if(now>=t.maghrib-60*M&&now<t.maghrib+20*M)return"golden";
+  if(now>=t.maghrib+20*M||now<t.fajr)return"night";
+  return"day"}
 var phTries=0;
 function nextPhoto(){
+  curPeriod=periodNow();pool=pools[curPeriod]&&pools[curPeriod].length?pools[curPeriod]:pools.day||[];
   if(!pool.length)return;
-  var n=phIdx%pool.length,item=pool[n];phIdx++;
+  var n=pidx[curPeriod]%pool.length,item=pool[n];pidx[curPeriod]++;
   var img=new Image(),done=false;
   function skip(){if(done)return;done=true;if(++phTries<pool.length)nextPhoto();else phTries=0}
   img.onerror=skip;
@@ -421,6 +431,7 @@ setInterval(tick,5000);
 setInterval(drawSky,60000);
 setInterval(showNew,9000);
 setInterval(nextPhoto,2*60000);
+setInterval(function(){if(curPeriod&&periodNow()!==curPeriod)nextPhoto()},60000); // switch at once when the time of day changes
 setInterval(loadWeather,30*60000);
 setInterval(drift,180000);
 window.addEventListener("resize",drawSky);

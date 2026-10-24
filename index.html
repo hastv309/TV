@@ -1,0 +1,400 @@
+<title>شاشة حسام</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: photo wall. Date top-right, weather top-left, a large serif clock on the right third, one quiet row of facts along the bottom, photo credit in the corner. */
+:root{
+  color-scheme: dark;
+  --ink:#fffaf2;
+  --ink-soft:rgba(255,250,242,.78);
+  --ink-faint:rgba(255,250,242,.55);
+  --rule:rgba(255,250,242,.28);
+  --glow:#ffd29a;          /* sunlit amber, marks what is close */
+  --gunner:#ef3b3f;        /* Arsenal red, a dot only */
+  --ground:#0c1220;
+  --f-clock:"Cormorant Garamond","Times New Roman",Georgia,serif;
+  --f-ar:"IBM Plex Sans Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;
+}
+html{direction:rtl}
+html,body{height:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:hidden;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+
+/* backgrounds: drawn sky underneath, photos crossfade above it */
+#sky,.photo{position:fixed;inset:0;width:100%;height:100%}
+.photo{background-size:cover;background-position:center;opacity:0;transition:opacity 2.5s ease;transform:scale(1.02)}
+.photo.on{opacity:1;animation:drift 900s linear forwards}
+@keyframes drift{from{transform:scale(1.02)}to{transform:scale(1.09)}}
+.veil{position:fixed;inset:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 24%),
+    linear-gradient(0deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.2) 26%,rgba(0,0,0,0) 44%),
+    radial-gradient(ellipse at 85% 50%,rgba(0,0,0,.22),rgba(0,0,0,0) 55%)}
+
+.stage{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr auto auto;
+  padding-block:clamp(16px,3.2vw,60px) clamp(10px,1.2vw,22px);
+  padding-left:max(clamp(16px,4.6vw,88px),env(safe-area-inset-left,0px));
+  padding-right:max(clamp(16px,4.6vw,88px),env(safe-area-inset-right,0px));
+  text-shadow:0 1px 2px rgba(0,0,0,.35),0 2px 22px rgba(0,0,0,.35);transition:transform 4s ease}
+
+/* top row */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.day,.dates{direction:ltr;text-align:right}
+.en{direction:ltr;text-align:right}
+.lbl.en{justify-content:flex-end;letter-spacing:.16em;font-weight:500}
+.dates .sep{color:var(--ink-faint)}
+.day{font-weight:700;font-size:clamp(20px,2.1vw,40px);line-height:1.15;letter-spacing:.01em}
+.dates{margin-top:.35em;font-size:clamp(11px,.95vw,18px);color:var(--ink-soft);font-weight:400}
+.wx{text-align:left;direction:rtl;display:flex;flex-direction:column;align-items:flex-end}
+.wx .city{font-weight:700;font-size:clamp(18px,1.7vw,34px);color:var(--ink);line-height:1.15}
+.wx .now{display:flex;align-items:baseline;gap:.4em;font-size:clamp(16px,1.4vw,28px);color:var(--ink-soft);font-weight:500;margin-top:.15em}
+.wx .temp{font-family:var(--f-clock);font-weight:500;font-size:clamp(40px,3.6vw,72px);color:var(--ink);line-height:1;direction:ltr}
+.wxi{display:inline-flex;align-self:center;width:clamp(34px,3vw,60px);height:clamp(34px,3vw,60px);color:var(--ink);filter:drop-shadow(0 2px 10px rgba(0,0,0,.35))}
+.wxi svg{width:100%;height:100%;overflow:visible}
+.wxi .sun{color:var(--glow)}
+.wx .range{font-size:clamp(12px,1vw,20px);color:var(--ink-soft);margin-top:.25em}
+
+/* clock */
+.mid{display:flex;align-items:center;justify-content:flex-start;min-height:0}
+.clock{display:flex;align-items:flex-end;direction:ltr;gap:.06em;line-height:.82}
+.clock #hm{font-family:var(--f-clock);font-weight:300;font-size:clamp(110px,15.5vw,300px);letter-spacing:-.01em}
+.clock .colon{display:inline-block;transform:translateY(-.06em);margin:0 .015em}
+.clock .ampm{font-family:var(--f-ar);font-weight:400;font-size:clamp(16px,1.5vw,30px);color:var(--ink-soft);padding-bottom:.55em}
+
+/* bottom facts */
+.facts{display:flex;align-items:flex-end;gap:0;flex-wrap:wrap;row-gap:16px}
+.cell{display:flex;flex-direction:column;gap:.15em;min-width:0;padding-inline:clamp(16px,2.2vw,44px)}
+.cell:first-child{padding-right:0}
+.cell+.cell{border-right:1px solid var(--rule)}
+.cell.push{margin-inline-start:auto;border-right:0}
+.cell.last{padding-left:0}
+.lbl{font-size:clamp(9px,.72vw,14px);color:var(--ink-faint);display:flex;align-items:center;gap:.45em}
+.big{font-weight:700;font-size:clamp(16px,1.6vw,32px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.big small{font-weight:400;font-size:.55em;color:var(--ink-soft);margin-inline-start:.4em;direction:rtl;unicode-bidi:isolate;display:inline-block}
+.sub{font-size:clamp(10px,.78vw,15px);color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.soon .big,.soon .sub{color:var(--glow)}
+.dot{width:.6em;height:.6em;border-radius:50%;background:var(--gunner);display:inline-block}
+.chip{padding:0 .5em;border:1px solid var(--rule);border-radius:99px}
+.top3{list-style:none;margin:.1em 0 0;padding:0;display:flex;flex-direction:column;gap:.18em;counter-reset:r}
+.top3 li{counter-increment:r;display:flex;align-items:baseline;justify-content:flex-end;gap:.5em;font-size:clamp(11px,.92vw,18px);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22vw}
+.top3 li::after{content:counter(r);font-family:var(--f-clock);font-weight:500;font-size:1.25em;color:var(--glow);min-width:.7em;text-align:center}
+.top3 li:first-child{font-weight:700;font-size:clamp(13px,1.15vw,22px)}
+.top3 li:nth-child(n+4){color:var(--ink-soft);font-weight:400}
+.rot{transition:opacity .8s ease}
+.rot.fade{opacity:0}
+.credit{margin-top:clamp(8px,.9vw,16px);font-size:clamp(8px,.55vw,11px);color:var(--ink-faint);text-align:left;direction:ltr;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+@media (max-width:760px){
+  body{overflow:auto}
+  .stage{height:auto;min-height:100%;row-gap:28px}
+  .facts{flex-direction:column;align-items:flex-start}
+  .cell,.cell:first-child,.cell.last{padding-inline:0}
+  .cell+.cell,.cell.push{border-right:0;border-top:1px solid var(--rule);padding-top:12px;margin-inline-start:0;width:100%}
+  .big,.sub{max-width:100%;white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){.photo.on{animation:none}.stage,.rot,.photo{transition:none}}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="photo" id="ph0" aria-hidden="true"></div>
+<div class="photo" id="ph1" aria-hidden="true"></div>
+<div class="veil"></div>
+
+<main class="stage" id="stage">
+  <header class="top">
+    <div>
+      <div class="day" id="day">Saturday</div>
+      <div class="dates"><span id="greg">24 October 2026</span><span class="sep"> · </span><span id="hijri">13 Jumada I 1448 AH</span></div>
+    </div>
+    <div class="wx" id="wx" hidden>
+      <div class="city">الرياض</div>
+      <div class="now"><span class="wxi" id="wxI" aria-hidden="true"></span><span class="temp" id="wxT">29°</span><span id="wxC">صافٍ</span></div>
+      <div class="range" id="wxR">العظمى 34° والصغرى 21°</div>
+    </div>
+  </header>
+
+  <section class="mid">
+    <div class="clock"><span id="hm">9:24</span><span class="ampm" id="ampm">م</span></div>
+  </section>
+
+  <footer class="facts">
+    <div class="cell" id="cPrayer">
+      <div class="lbl">الصلاة القادمة</div>
+      <div class="big" id="npName">الفجر <small>4:37 ص</small></div>
+      <div class="sub" id="npLeft">بعد 7 ساعات</div>
+    </div>
+    <div class="cell">
+      <div class="lbl">رمضان</div>
+      <div class="big" id="ramDays">107 أيام</div>
+      <div class="sub" id="ramSub">يبدأ الاثنين 8 فبراير تقريبًا</div>
+    </div>
+    <div class="cell push">
+      <div class="lbl en">NETFLIX · TOP MOVIES KSA</div>
+      <ol class="top3 en" id="nfTop"><li>Animals</li><li>Tomb Raider</li><li>Crazy Rich, Incredibly Broke</li></ol>
+    </div>
+    <div class="cell">
+      <div class="lbl en">SHAHID · TOP MOVIES</div>
+      <ol class="top3 en" id="shTop"><li>32B</li><li>What's the Big Deal?!</li><li>Blackout</li></ol>
+    </div>
+    <div class="cell last" id="cMatch">
+      <div class="lbl"><span class="dot"></span><span id="mComp">مباراة أرسنال القادمة</span></div>
+      <div class="big" id="mTeams">ليفربول × أرسنال</div>
+      <div class="sub" id="mWhen">الأحد 1 نوفمبر · 7:30 م</div>
+    </div>
+  </footer>
+  <div class="credit" id="credit">منظر مرسوم يتبع وقت الشمس في الرياض</div>
+</main>
+
+<script>
+
+/* ---------- astronomy: Umm al-Qura prayer times for Riyadh ---------- */
+var LAT=24.7136,LNG=46.6753,TZ=3,D2R=Math.PI/180,R2D=180/Math.PI;
+function dsin(d){return Math.sin(d*D2R)}function dcos(d){return Math.cos(d*D2R)}
+function dtan(d){return Math.tan(d*D2R)}function darcsin(x){return Math.asin(x)*R2D}
+function darccos(x){return Math.acos(Math.max(-1,Math.min(1,x)))*R2D}function darctan2(y,x){return Math.atan2(y,x)*R2D}
+function fixAngle(a){a=a-360*Math.floor(a/360);return a<0?a+360:a}
+function fixHour(h){h=h-24*Math.floor(h/24);return h<0?h+24:h}
+function julian(y,m,d){if(m<=2){y-=1;m+=12}var A=Math.floor(y/100),B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5}
+function sunPosition(jd){var D=jd-2451545.0,g=fixAngle(357.529+0.98560028*D),q=fixAngle(280.459+0.98564736*D),
+  L=fixAngle(q+1.915*dsin(g)+0.020*dsin(2*g)),e=23.439-0.00000036*D,
+  RA=darctan2(dcos(e)*dsin(L),dcos(L))/15;return{decl:darcsin(dsin(e)*dsin(L)),eqt:q/15-fixHour(RA)}}
+function prayerTimes(y,m,d,ramadan){
+  var jd=julian(y,m,d)-LNG/(15*24);
+  function at(t){return sunPosition(jd+t)}
+  function midDay(t){return fixHour(12-at(t).eqt)}
+  function angleTime(angle,t,ccw){var p=at(t),noon=midDay(t);
+    var a=darccos((-dsin(angle)-dsin(p.decl)*dsin(LAT))/(dcos(p.decl)*dcos(LAT)))/15;return noon+(ccw?-a:a)}
+  function asrTime(t){var decl=at(t).decl;return angleTime(-R2D*Math.atan(1/(1+dtan(Math.abs(LAT-decl)))),t)}
+  var t={fajr:5,sunrise:6,dhuhr:12,asr:13,maghrib:18};
+  for(var i=0;i<2;i++){var f={};for(var k in t)f[k]=t[k]/24;
+    t={fajr:angleTime(18.5,f.fajr,true),sunrise:angleTime(.833,f.sunrise,true),dhuhr:midDay(f.dhuhr),asr:asrTime(f.asr),maghrib:angleTime(.833,f.maghrib)}}
+  var adj=TZ-LNG/15,o={};for(var k2 in t)o[k2]=t[k2]+adj;
+  o.isha=o.maghrib+(ramadan?120:90)/60;return o}
+function sunAltitude(ms){var dt=new Date(ms),jd=ms/864e5+2440587.5,p=sunPosition(jd);
+  var h=dt.getUTCHours()+dt.getUTCMinutes()/60+dt.getUTCSeconds()/3600;
+  var H=(h+LNG/15+p.eqt-12)*15;return darcsin(dsin(LAT)*dsin(p.decl)+dcos(LAT)*dcos(p.decl)*dcos(H))}
+
+/* ---------- Riyadh calendar helpers (fixed UTC+3, no DST) ---------- */
+var DAY=864e5;
+function rParts(ms){var d=new Date(ms+TZ*36e5);return{y:d.getUTCFullYear(),m:d.getUTCMonth()+1,d:d.getUTCDate(),
+  h:d.getUTCHours(),mi:d.getUTCMinutes(),wd:d.getUTCDay()}}
+function rMidnight(y,m,d){return Date.UTC(y,m-1,d)-TZ*36e5}          // ms of 00:00 Riyadh
+function dayIndex(ms){var p=rParts(ms);return Math.round(Date.UTC(p.y,p.m-1,p.d)/DAY)}
+var WD=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+var MO=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+function hm12(h,mi){var ap=h<12?"ص":"م",hh=h%12||12;return{t:hh+":"+(mi<10?"0":"")+mi,ap:ap}}
+function fmtHours(x){var m=Math.round(x*60),h=Math.floor(m/60)%24,mi=m%60,r=hm12(h,mi);return r.t+" "+r.ap}
+
+var hijriFmt=null,hijriNum=null;
+try{hijriFmt=new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{timeZone:"Asia/Riyadh",day:"numeric",month:"long",year:"numeric"});
+    hijriNum=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{timeZone:"Asia/Riyadh",day:"numeric",month:"numeric",year:"numeric"})}catch(e){}
+function hijriParts(ms){if(!hijriNum)return null;var o={};hijriNum.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value});
+  return{y:parseInt(o.year,10),m:parseInt(o.month,10),d:parseInt(o.day,10)}}
+
+/* Arabic counting words */
+function nDays(n){return n===1?"يوم":n===2?"يومين":(n>=3&&n<=10)?n+" أيام":n+" يوم"}
+function nHours(n){return n===1?"ساعة":n===2?"ساعتين":(n>=3&&n<=10)?n+" ساعات":n+" ساعة"}
+function nMins(n){return n===1?"دقيقة":n===2?"دقيقتين":(n>=3&&n<=10)?n+" دقائق":n+" دقيقة"}
+function untilText(ms){var m=Math.max(0,Math.ceil(ms/6e4)),h=Math.floor(m/60),mi=m%60;
+  if(m<=1)return"الآن";if(h===0)return"بعد "+nMins(mi);if(mi===0)return"بعد "+nHours(h);return"بعد "+nHours(h)+" و"+nMins(mi)}
+
+/* ---------- prayers ---------- */
+var PNAMES={fajr:"الفجر",sunrise:"الشروق",dhuhr:"الظهر",asr:"العصر",maghrib:"المغرب",isha:"العشاء"};
+var ORDER=["fajr","sunrise","dhuhr","asr","maghrib","isha"];
+function inRamadan(ms){var h=hijriParts(ms);return !!(h&&h.m===9)}
+function dayPrayers(ms){var p=rParts(ms),t=prayerTimes(p.y,p.m,p.d,inRamadan(ms)),base=rMidnight(p.y,p.m,p.d),out=[];
+  ORDER.forEach(function(k){var mins=Math.round(t[k]*60);out.push({k:k,at:base+mins*6e4,h:t[k],name:(k==="dhuhr"&&p.wd===5)?"الجمعة":PNAMES[k]})});return out}
+
+/* ---------- Arsenal fixtures (kick-off in UTC) ---------- */
+var PL="الدوري الإنجليزي",CL="دوري الأبطال";
+var FIX=[
+ ["2026-11-01T16:30Z",PL,"ليفربول","أرسنال"],["2026-11-04T20:00Z",CL,"سلافيا براغ","أرسنال"],
+ ["2026-11-07T15:00Z",PL,"أرسنال","هل سيتي"],["2026-11-21T17:30Z",PL,"نيوكاسل","أرسنال"],
+ ["2026-11-24T20:00Z",CL,"أرسنال","دورتموند"],["2026-11-29T16:30Z",PL,"أرسنال","مانشستر سيتي"],
+ ["2026-12-02T20:15Z",PL,"برينتفورد","أرسنال"],["2026-12-06T16:30Z",PL,"توتنهام","أرسنال"],
+ ["2026-12-09T20:00Z",CL,"أرسنال","ريال مدريد"],["2026-12-13T14:00Z",PL,"أرسنال","بورنموث"],
+ ["2026-12-20T16:30Z",PL,"أرسنال","مانشستر يونايتد"],["2026-12-27T19:00Z",PL,"كريستال بالاس","أرسنال"],
+ ["2026-12-30T19:30Z",PL,"فولهام","أرسنال"],["2027-01-20T20:00Z",CL,"ريال بيتيس","أرسنال"],
+ ["2027-01-27T20:00Z",CL,"أرسنال","صباح"]
+].map(function(r){return{at:Date.parse(r[0]),comp:r[1],home:r[2],away:r[3]}});
+
+/* ---------- new on Netflix / Shahid (release dates) ---------- */
+/* trending movies: Netflix Saudi chart (week Oct 12-18) and Shahid chart (Oct 24). Edit these lists to refresh. */
+var TRENDS={nf:["Animals","Tomb Raider","Crazy Rich, Incredibly Broke","Heart Eyes","Ben-Hur"],sh:["32B","What's the Big Deal?!","Blackout","Face to Face","A Matter of Life and Death"]};
+var EN_WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var EN_MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var hijriEn=null;try{hijriEn=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{timeZone:"Asia/Riyadh",day:"numeric",month:"long",year:"numeric"})}catch(e){}
+function hijriText(ms){if(!hijriEn)return"";var o={};hijriEn.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value});
+  return o.day+" "+o.month+" "+(o.year||"").replace(/\D/g,"")+" AH"}
+
+/* ---------- render ---------- */
+var $=function(id){return document.getElementById(id)};
+var ramCache={day:null,start:null};
+function render(){
+  var now=Date.now(),p=rParts(now);
+  var c=hm12(p.h,p.mi);$("hm").innerHTML=c.t.replace(":",'<span class="colon">:</span>');$("ampm").textContent=c.ap;
+  $("day").textContent=EN_WD[p.wd];
+  $("greg").textContent=p.d+" "+EN_MO[p.m-1]+" "+p.y;
+  $("hijri").textContent=hijriText(now);
+
+  // prayers line + next prayer (sunrise shown, never counted as "next prayer")
+  var today=dayPrayers(now),next=null;
+  for(var i=0;i<today.length;i++){if(today[i].k!=="sunrise"&&today[i].at>now){next=today[i];break}}
+  if(!next){next=dayPrayers(now+DAY)[0]}
+  var left=next.at-now;
+  $("npName").innerHTML=next.name+' <small>'+fmtHours(next.h)+'</small>';
+  $("npLeft").textContent=untilText(left);
+  $("cPrayer").classList.toggle("soon",left<=15*6e4);
+
+  // Ramadan
+  var h=hijriParts(now);
+  if(h&&h.m===9){$("ramDays").textContent="اليوم "+h.d;$("ramSub").textContent="رمضان مبارك";}
+  else if(h){var di=dayIndex(now);
+    if(ramCache.day!==di){ramCache.day=di;ramCache.start=null;for(var k=1;k<=400;k++){var hp=hijriParts(now+k*DAY);if(hp&&hp.m===9&&hp.d===1){ramCache.start=now+k*DAY;break}}}
+    var start=ramCache.start;
+    if(start){var n=dayIndex(start)-dayIndex(now),sp=rParts(start);
+      $("ramDays").textContent=nDays(n);$("ramSub").textContent="يبدأ "+WD[sp.wd]+" "+sp.d+" "+MO[sp.m-1]+" تقريبًا"}}
+
+  // Arsenal
+  var m=null;for(var j=0;j<FIX.length;j++){if(FIX[j].at+2*36e5>now){m=FIX[j];break}}
+  if(m){var mp=rParts(m.at),tt=hm12(mp.h,mp.mi),dd=dayIndex(m.at)-dayIndex(now),when;
+    if(now>=m.at)when="تُلعب الآن";
+    else if(dd===0)when="اليوم · "+tt.t+" "+tt.ap;
+    else if(dd===1)when="بكرة · "+tt.t+" "+tt.ap;
+    else when=WD[mp.wd]+" "+mp.d+" "+MO[mp.m-1]+" · "+tt.t+" "+tt.ap+" · بعد "+nDays(dd);
+    $("mComp").textContent=m.comp;$("mTeams").textContent=m.home+" × "+m.away;$("mWhen").textContent=when;
+    $("cMatch").classList.toggle("soon",dd===0)}
+  else{$("mComp").textContent="أرسنال";$("mTeams").textContent="حدّث جدول المباريات";$("mWhen").textContent="انتهت القائمة الحالية"}
+}
+
+function showNew(){["nf","sh"].forEach(function(k){var ol=$(k+"Top");ol.innerHTML="";
+  TRENDS[k].slice(0,5).forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li)})})}
+
+/* ---------- landscape sky (redrawn each minute from the real sun altitude) ---------- */
+var cv=$("sky"),cx=cv.getContext("2d");
+var KEYS=[
+ {a:-18,top:[6,10,26],mid:[12,20,44],hor:[24,34,62],land:[5,8,16]},
+ {a:-9,top:[16,24,62],mid:[52,52,98],hor:[176,104,96],land:[10,14,26]},
+ {a:-2,top:[34,52,104],mid:[132,108,140],hor:[240,142,94],land:[22,26,38]},
+ {a:5,top:[56,94,156],mid:[204,158,140],hor:[247,190,124],land:[38,50,46]},
+ {a:16,top:[58,116,192],mid:[130,178,222],hor:[208,226,238],land:[44,72,56]},
+ {a:70,top:[44,104,180],mid:[118,170,222],hor:[198,222,240],land:[40,70,52]}];
+function lerp(a,b,t){return a+(b-a)*t}
+function mixc(a,b,t){return[lerp(a[0],b[0],t),lerp(a[1],b[1],t),lerp(a[2],b[2],t)]}
+function rgb(c,al){return"rgba("+(c[0]|0)+","+(c[1]|0)+","+(c[2]|0)+","+(al==null?1:al)+")"}
+function palette(alt){if(alt<=KEYS[0].a)return KEYS[0];for(var i=1;i<KEYS.length;i++){if(alt<=KEYS[i].a){var A=KEYS[i-1],B=KEYS[i],t=(alt-A.a)/(B.a-A.a);
+  return{top:mixc(A.top,B.top,t),mid:mixc(A.mid,B.mid,t),hor:mixc(A.hor,B.hor,t),land:mixc(A.land,B.land,t)}}}return KEYS[KEYS.length-1]}
+function rng(seed){return function(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646}}
+function ridge(w,i,seed){var r=rng(seed),ph=[r()*6.3,r()*6.3,r()*6.3,r()*6.3],fr=[1.3+r(),2.9+r()*2,6+r()*4,13+r()*6],am=[1,.45,.18,.07];
+  return function(x){var u=x/w,v=0;for(var k=0;k<4;k++)v+=am[k]*Math.sin(u*fr[k]*Math.PI+ph[k]);return v}}
+function drawSky(){
+  var dpr=Math.min(window.devicePixelRatio||1,1.5),w=cv.clientWidth,h=cv.clientHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  var now=Date.now(),alt=sunAltitude(now),P=palette(alt),horY=h*.62;
+  var g=cx.createLinearGradient(0,0,0,horY);g.addColorStop(0,rgb(P.top));g.addColorStop(.6,rgb(P.mid));g.addColorStop(1,rgb(P.hor));
+  cx.fillStyle=g;cx.fillRect(0,0,w,h);
+  // stars
+  var dark=Math.max(0,Math.min(1,(-alt-6)/8));
+  if(dark>0){var r=rng(7);for(var s=0;s<220;s++){var sx=r()*w,sy=r()*horY*.9,sr=r()*1.1+.2;cx.fillStyle="rgba(255,250,235,"+(dark*(.25+r()*.6)).toFixed(2)+")";cx.beginPath();cx.arc(sx,sy,sr,0,6.3);cx.fill()}}
+  // sun: rises on the left, sets on the right, kept away from the clock
+  var p=rParts(now),dayFrac=(p.h+p.mi/60-6)/12,sunX=w*(.12+.5*Math.max(0,Math.min(1,dayFrac))),sunY=horY-(alt/55)*h*.5;
+  if(alt>-4){var warm=Math.max(0,Math.min(1,1-alt/20)),sc=mixc([255,246,224],[255,170,96],warm);
+    var gl=cx.createRadialGradient(sunX,sunY,0,sunX,sunY,h*.55);gl.addColorStop(0,rgb(sc,.55*Math.min(1,(alt+4)/6)));gl.addColorStop(1,rgb(sc,0));
+    cx.fillStyle=gl;cx.fillRect(0,0,w,h);
+    if(alt>-1){cx.fillStyle=rgb(sc,.95);cx.beginPath();cx.arc(sunX,sunY,h*.022,0,6.3);cx.fill()}}
+  // ridges, far to near, with haze between them
+  var layers=5;
+  for(var i=0;i<layers;i++){var t=(i+1)/layers,col=mixc(mixc(P.hor,P.mid,.35),P.land,Math.pow(t,.8)),f=ridge(w,i,101+i*17),
+      base=horY-h*.1+i*h*.085,amp=h*(.07-.009*i);
+    cx.fillStyle=rgb(col);cx.beginPath();cx.moveTo(0,h);
+    for(var x=0;x<=w;x+=6)cx.lineTo(x,base-amp*f(x));cx.lineTo(w,h);cx.closePath();cx.fill();
+    if(i>=layers-2){ // cypress silhouettes along the near ridges
+      var tr=rng(500+i);for(var q=0;q<26;q++){var tx=tr()*w,ty=base-amp*f(tx)+2,th=h*(.035+tr()*.05)*(i===layers-1?1.3:.8);
+        cx.fillStyle=rgb(mixc(col,[0,0,0],.25));cx.beginPath();cx.ellipse(tx,ty-th/2,th*.13,th/2,0,0,6.3);cx.fill()}}
+    var hz=cx.createLinearGradient(0,base-amp,0,base+h*.06);hz.addColorStop(0,rgb(P.hor,0));hz.addColorStop(1,rgb(P.hor,.16*(1-t)));
+    cx.fillStyle=hz;cx.fillRect(0,base-amp,w,h*.12)}
+}
+
+
+/* ---------- landscape photos from Wikimedia Commons (credit read live from each file) ---------- */
+var PHOTOS=["Cipressi Val D'Orcia.jpg","Val-d'Orcia-landscape-1.jpg","Wle 2023 - val d'orcia 1 - Vista da Pienza.jpg",
+  "Lago di Braies, Dolomite, South Tyrol, Italy3.jpg","Braies lake in autumn.jpg","Elephant rock, Al-'Ula.jpg"];
+var pool=[],phIdx=0,phLayer=0;
+function stripTags(s){var d=document.createElement("div");d.innerHTML=s||"";return(d.textContent||"").replace(/\s+/g," ").trim()}
+function loadPhotoInfo(done){
+  var titles=PHOTOS.map(function(f){return"File:"+f}).join("|");
+  var url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=2560&titles="+encodeURIComponent(titles);
+  fetch(url).then(function(r){return r.json()}).then(function(j){
+    var pages=(j.query&&j.query.pages)||{};
+    Object.keys(pages).forEach(function(k){var ii=pages[k].imageinfo&&pages[k].imageinfo[0];if(!ii||!ii.thumburl)return;
+      if(ii.height>ii.width)return; // landscape only
+      var md=ii.extmetadata||{};
+      pool.push({src:ii.thumburl,title:pages[k].title.replace(/^File:/,"").replace(/\.\w+$/,""),
+        artist:stripTags(md.Artist&&md.Artist.value),lic:stripTags(md.LicenseShortName&&md.LicenseShortName.value)})});
+    for(var i=pool.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[r];pool[r]=t}
+    done()}).catch(function(){done()})}
+function nextPhoto(){
+  if(!pool.length)return;
+  var item=pool[phIdx%pool.length];phIdx++;
+  var img=new Image();
+  img.onload=function(){
+    var on=$("ph"+phLayer),off=$("ph"+(1-phLayer));
+    off.style.backgroundImage='url("'+item.src.replace(/"/g,'%22')+'")';
+    off.classList.remove("on");void off.offsetWidth;off.classList.add("on");on.classList.remove("on");
+    phLayer=1-phLayer;
+    $("credit").textContent=item.title+(item.artist?" · "+item.artist:"")+(item.lic?" · "+item.lic:"")+" · Wikimedia Commons"};
+  img.src=item.src}
+
+/* ---------- weather (Open-Meteo, no key) ---------- */
+/* line icons drawn in currentColor; sun parts use the amber accent */
+var ICO={
+ sun:'<g class="sun" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>',
+ moon:'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1z"/>',
+ smallSun:'<g class="sun" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3.2"/><path d="M8 1.8v1.4M1.8 8h1.4M3.6 3.6l1 1M12.4 3.6l-1 1M3.6 12.4l1-1"/></g>',
+ smallMoon:'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12 9.6A5 5 0 0 1 5.4 3a5 5 0 1 0 6.6 6.6z"/>',
+ cloud:'<path fill="rgba(0,0,0,.18)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M7.5 19h10a4 4 0 0 0 .4-8 5.5 5.5 0 0 0-10.6 1.2A3.4 3.4 0 0 0 7.5 19z"/>',
+ fog:'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M4 9h16M6 13h12M4 17h16"/>',
+ rain:'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 20.5l-1 2M13 20.5l-1 2M17 20.5l-1 2"/>',
+ bolt:'<path class="sun" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12.5 16.5l-2 3.5h3l-2 3.5"/>',
+ snow:'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 21.5h.01M13 22.5h.01M17 21.5h.01"/>'};
+function wxIcon(c,day){var parts;
+  if(c===0)parts=[day?ICO.sun:ICO.moon];
+  else if(c<=2)parts=[day?ICO.smallSun:ICO.smallMoon,ICO.cloud];
+  else if(c===3)parts=[ICO.cloud];
+  else if(c===45||c===48)parts=[ICO.fog];
+  else if(c>=95)parts=[ICO.cloud,ICO.bolt];
+  else if(c>=71&&c<=77)parts=[ICO.cloud,ICO.snow];
+  else if(c>=51)parts=[ICO.cloud,ICO.rain];
+  else parts=[ICO.cloud];
+  return '<svg viewBox="0 0 24 24">'+parts.join("")+'</svg>'}
+function wxText(c){if(c===0)return"صافٍ";if(c<=2)return"غائم جزئيًا";if(c===3)return"غائم";if(c===45||c===48)return"ضباب";
+  if(c>=51&&c<=57)return"رذاذ";if(c>=61&&c<=67)return"مطر";if(c>=71&&c<=77)return"ثلج";if(c>=80&&c<=82)return"زخات مطر";if(c>=95)return"عاصفة رعدية";return""}
+function loadWeather(){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LNG+"&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FRiyadh&forecast_days=1";
+  fetch(url).then(function(r){return r.json()}).then(function(j){
+    if(!j.current)return;
+    $("wxT").textContent=Math.round(j.current.temperature_2m)+"°";
+    $("wxC").textContent=wxText(j.current.weather_code);
+    $("wxI").innerHTML=wxIcon(j.current.weather_code,j.current.is_day!==0);
+    if(j.daily)$("wxR").textContent="العظمى ⁦"+Math.round(j.daily.temperature_2m_max[0])+"°⁩ والصغرى ⁦"+Math.round(j.daily.temperature_2m_min[0])+"°⁩";
+    $("wx").hidden=false}).catch(function(){})}
+
+/* small drift every few minutes to protect the panel from burn-in */
+function drift(){$("stage").style.transform="translate("+((Math.random()*12-6)|0)+"px,"+((Math.random()*10-5)|0)+"px)"}
+
+function tick(){try{render()}catch(e){}}
+tick();drawSky();showNew();loadWeather();
+loadPhotoInfo(nextPhoto);
+setInterval(tick,5000);
+setInterval(drawSky,60000);
+setInterval(showNew,9000);
+setInterval(nextPhoto,15*60000);
+setInterval(loadWeather,30*60000);
+setInterval(drift,180000);
+window.addEventListener("resize",drawSky);
+</script>

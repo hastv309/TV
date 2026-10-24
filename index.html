@@ -85,7 +85,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 .top3 li:nth-child(n+4){color:var(--ink-soft);font-weight:400}
 .rot{transition:opacity .8s ease}
 .rot.fade{opacity:0}
-.credit{margin-top:clamp(8px,.9vw,16px);font-size:clamp(8px,.55vw,11px);color:var(--ink-faint);text-align:left;direction:ltr;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.credit{margin-top:clamp(8px,.9vw,16px);font-size:clamp(10px,.75vw,15px);color:var(--ink-faint);text-align:left;direction:ltr;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 @media (max-width:760px){
   body{overflow:auto}
@@ -342,16 +342,21 @@ function loadPhotoInfo(done){
     if(pool.length<3)pool=pool.concat(lowres);
     for(var i=pool.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[r];pool[r]=t}
     done()}).catch(function(){done()})}
+var phTries=0;
 function nextPhoto(){
-  if(!pool.length)return;
-  var item=pool[phIdx%pool.length];phIdx++;
-  var img=new Image();
+  if(!pool.length){$("credit").textContent="0 photos loaded · drawn landscape";return}
+  var n=phIdx%pool.length,item=pool[n];phIdx++;
+  var img=new Image(),done=false;
+  function skip(){if(done)return;done=true;if(++phTries<pool.length)nextPhoto();else phTries=0}
+  img.onerror=skip;
+  setTimeout(skip,45000); // a photo that has not arrived in 45 s is skipped
   img.onload=function(){
+    if(done)return;done=true;phTries=0;
     var on=$("ph"+phLayer),off=$("ph"+(1-phLayer));
     off.style.backgroundImage='url("'+item.src.replace(/"/g,'%22')+'")';
     off.classList.remove("on");void off.offsetWidth;off.classList.add("on");on.classList.remove("on");
     phLayer=1-phLayer;
-    $("credit").textContent=item.title+(item.artist?" · "+item.artist:"")+(item.lic?" · "+item.lic:"")+" · Wikimedia Commons"};
+    $("credit").textContent=(n+1)+"/"+pool.length+" · "+item.title+(item.artist?" · "+item.artist:"")+(item.lic?" · "+item.lic:"")+" · Wikimedia Commons"};
   img.src=item.src}
 
 /* ---------- weather (Open-Meteo, no key) ---------- */

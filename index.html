@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap">
 <style>
 /* Layout: photo wall. Date top-right, weather top-left, a large serif clock on the right third, one quiet row of facts along the bottom, photo credit in the corner. */
 :root{
@@ -14,7 +14,7 @@
   --glow:#ffd29a;          /* sunlit amber, marks what is close */
   --gunner:#ef3b3f;        /* Arsenal red, a dot only */
   --ground:#0c1220;
-  --f-clock:"Cormorant Garamond","Times New Roman",Georgia,serif;
+  --f-clock:"Outfit","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --f-ar:"IBM Plex Sans Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;
 }
 html{direction:rtl}
@@ -29,24 +29,24 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 @keyframes drift{from{transform:scale(1.02)}to{transform:scale(1.09)}}
 .veil{position:fixed;inset:0;pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 24%),
-    linear-gradient(0deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.2) 26%,rgba(0,0,0,0) 44%),
+    linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.25) 22%,rgba(0,0,0,0) 40%),
+    linear-gradient(0deg,rgba(0,0,0,.8) 0%,rgba(0,0,0,.5) 22%,rgba(0,0,0,0) 46%),
     radial-gradient(ellipse at 85% 50%,rgba(0,0,0,.22),rgba(0,0,0,0) 55%)}
 
 .stage{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr auto auto;
   padding-block:clamp(16px,3.2vw,60px) clamp(10px,1.2vw,22px);
   padding-left:max(clamp(16px,4.6vw,88px),env(safe-area-inset-left,0px));
   padding-right:max(clamp(16px,4.6vw,88px),env(safe-area-inset-right,0px));
-  text-shadow:0 1px 2px rgba(0,0,0,.35),0 2px 22px rgba(0,0,0,.35);transition:transform 4s ease}
+  text-shadow:0 1px 3px rgba(0,0,0,.55),0 2px 24px rgba(0,0,0,.45);transition:transform 4s ease}
 
 /* top row */
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
 .day,.dates{direction:ltr;text-align:right}
 .en{direction:ltr;text-align:right}
-.lbl.en{justify-content:flex-end;letter-spacing:.16em;font-weight:500}
+.lbl.en{justify-content:flex-end;letter-spacing:.12em;font-weight:700;color:var(--ink);font-size:clamp(12px,1.12vw,22px)}
 .dates .sep{color:var(--ink-faint)}
-.day{font-weight:700;font-size:clamp(20px,2.1vw,40px);line-height:1.15;letter-spacing:.01em}
-.dates{margin-top:.35em;font-size:clamp(11px,.95vw,18px);color:var(--ink-soft);font-weight:400}
+.day{font-weight:700;font-size:clamp(24px,2.7vw,52px);line-height:1.15;letter-spacing:.01em}
+.dates{margin-top:.3em;font-size:clamp(14px,1.35vw,26px);color:var(--ink);font-weight:500}
 .wx{text-align:left;direction:rtl;display:flex;flex-direction:column;align-items:flex-end}
 .wx .city{font-weight:700;font-size:clamp(18px,1.7vw,34px);color:var(--ink);line-height:1.15}
 .wx .now{display:flex;align-items:baseline;gap:.4em;font-size:clamp(16px,1.4vw,28px);color:var(--ink-soft);font-weight:500;margin-top:.15em}
@@ -57,10 +57,10 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 .wx .range{font-size:clamp(12px,1vw,20px);color:var(--ink-soft);margin-top:.25em}
 
 /* clock */
-.mid{display:flex;align-items:center;justify-content:flex-start;min-height:0}
+.mid{display:flex;align-items:flex-start;justify-content:flex-start;min-height:0;padding-top:clamp(8px,1.2vw,24px)}
 .clock{display:flex;align-items:flex-end;direction:ltr;gap:.06em;line-height:.82}
-.clock #hm{font-family:var(--f-clock);font-weight:300;font-size:clamp(110px,15.5vw,300px);letter-spacing:-.01em}
-.clock .colon{display:inline-block;transform:translateY(-.06em);margin:0 .015em}
+.clock #hm{font-family:var(--f-clock);font-weight:200;font-size:clamp(100px,13.5vw,260px);letter-spacing:-.02em}
+.clock .colon{display:inline-block;transform:translateY(-.08em);margin:0 .02em}
 .clock .ampm{font-family:var(--f-ar);font-weight:400;font-size:clamp(16px,1.5vw,30px);color:var(--ink-soft);padding-bottom:.55em}
 
 /* bottom facts */
@@ -70,18 +70,18 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 .cell+.cell{border-right:1px solid var(--rule)}
 .cell.push{margin-inline-start:auto;border-right:0}
 .cell.last{padding-left:0}
-.lbl{font-size:clamp(9px,.72vw,14px);color:var(--ink-faint);display:flex;align-items:center;gap:.45em}
-.big{font-weight:700;font-size:clamp(16px,1.6vw,32px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.lbl{font-size:clamp(11px,.98vw,19px);color:var(--ink-soft);font-weight:500;display:flex;align-items:center;gap:.45em}
+.big{font-weight:700;font-size:clamp(18px,2.05vw,40px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
 .big small{font-weight:400;font-size:.55em;color:var(--ink-soft);margin-inline-start:.4em;direction:rtl;unicode-bidi:isolate;display:inline-block}
-.sub{font-size:clamp(10px,.78vw,15px);color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+.sub{font-size:clamp(12px,1.02vw,20px);color:var(--ink-soft);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
 .soon .big,.soon .sub{color:var(--glow)}
 .dot{width:.6em;height:.6em;border-radius:50%;background:var(--gunner);display:inline-block}
 .chip{padding:0 .5em;border:1px solid var(--rule);border-radius:99px}
 .top3{list-style:none;margin:.1em 0 0;padding:0;display:flex;flex-direction:column;gap:.18em;counter-reset:r}
-.top3 li{counter-increment:r;display:flex;align-items:baseline;justify-content:flex-end;gap:.5em;font-size:clamp(11px,.92vw,18px);font-weight:500;
+.top3 li{counter-increment:r;display:flex;align-items:baseline;justify-content:flex-end;gap:.5em;font-size:clamp(12px,1.12vw,22px);font-weight:500;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22vw}
 .top3 li::after{content:counter(r);font-family:var(--f-clock);font-weight:500;font-size:1.25em;color:var(--glow);min-width:.7em;text-align:center}
-.top3 li:first-child{font-weight:700;font-size:clamp(13px,1.15vw,22px)}
+.top3 li:first-child{font-weight:700;font-size:clamp(14px,1.4vw,27px)}
 .top3 li:nth-child(n+4){color:var(--ink-soft);font-weight:400}
 .rot{transition:opacity .8s ease}
 .rot.fade{opacity:0}
@@ -236,7 +236,7 @@ var $=function(id){return document.getElementById(id)};
 var ramCache={day:null,start:null};
 function render(){
   var now=Date.now(),p=rParts(now);
-  var c=hm12(p.h,p.mi);$("hm").innerHTML=c.t.replace(":",'<span class="colon">:</span>');$("ampm").textContent=c.ap;
+  $("hm").innerHTML=(p.h<10?"0":"")+p.h+'<span class="colon">:</span>'+(p.mi<10?"0":"")+p.mi;$("ampm").hidden=true;
   $("day").textContent=EN_WD[p.wd];
   $("greg").textContent=p.d+" "+EN_MO[p.m-1]+" "+p.y;
   $("hijri").textContent=hijriText(now);
@@ -323,19 +323,23 @@ function drawSky(){
 
 /* ---------- landscape photos from Wikimedia Commons (credit read live from each file) ---------- */
 var PHOTOS=["Cipressi Val D'Orcia.jpg","Val-d'Orcia-landscape-1.jpg","Wle 2023 - val d'orcia 1 - Vista da Pienza.jpg",
-  "Lago di Braies, Dolomite, South Tyrol, Italy3.jpg","Braies lake in autumn.jpg","Elephant rock, Al-'Ula.jpg"];
-var pool=[],phIdx=0,phLayer=0;
+  "Lago di Braies, Dolomite, South Tyrol, Italy3.jpg","Braies lake in autumn.jpg","Elephant rock, Al-'Ula.jpg",
+  "Lake Braies (Pragser Wildsee) - Braies, Bozen, Italy - April 4, 2010.jpg","Lago di Braies South Tyrol 6.jpg",
+  "Val d'Orcia, parco naturale, artistico e culturale.jpg","Val D'Orcia1.jpg","In Val d'Orcia.jpg","Elephant rock Al Ula, Saudi Arabia 2011.jpg",
+  "Val d'Orcia grossetana.JPG","Braies.jpg","Lake Braies view 1.jpg","Val d'Orcia banner.jpg","Val d'orcia -pienza.JPG"];
+var pool=[],lowres=[],phIdx=0,phLayer=0;
 function stripTags(s){var d=document.createElement("div");d.innerHTML=s||"";return(d.textContent||"").replace(/\s+/g," ").trim()}
 function loadPhotoInfo(done){
   var titles=PHOTOS.map(function(f){return"File:"+f}).join("|");
-  var url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=2560&titles="+encodeURIComponent(titles);
+  var url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=3840&titles="+encodeURIComponent(titles);
   fetch(url).then(function(r){return r.json()}).then(function(j){
     var pages=(j.query&&j.query.pages)||{};
     Object.keys(pages).forEach(function(k){var ii=pages[k].imageinfo&&pages[k].imageinfo[0];if(!ii||!ii.thumburl)return;
       if(ii.height>ii.width)return; // landscape only
       var md=ii.extmetadata||{};
-      pool.push({src:ii.thumburl,title:pages[k].title.replace(/^File:/,"").replace(/\.\w+$/,""),
+      /* prefer photos sharp enough for a 4K panel */ (ii.width<2500?lowres:pool).push({src:ii.thumburl,title:pages[k].title.replace(/^File:/,"").replace(/\.\w+$/,""),
         artist:stripTags(md.Artist&&md.Artist.value),lic:stripTags(md.LicenseShortName&&md.LicenseShortName.value)})});
+    if(pool.length<3)pool=pool.concat(lowres);
     for(var i=pool.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=pool[i];pool[i]=pool[r];pool[r]=t}
     done()}).catch(function(){done()})}
 function nextPhoto(){
@@ -393,7 +397,7 @@ loadPhotoInfo(nextPhoto);
 setInterval(tick,5000);
 setInterval(drawSky,60000);
 setInterval(showNew,9000);
-setInterval(nextPhoto,15*60000);
+setInterval(nextPhoto,2*60000);
 setInterval(loadWeather,30*60000);
 setInterval(drift,180000);
 window.addEventListener("resize",drawSky);

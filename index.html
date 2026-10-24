@@ -20,7 +20,7 @@
 html{direction:rtl}
 html,body{height:100%}
 *,*::before,*::after{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:hidden;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:hidden;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1}
 
 /* backgrounds: drawn sky underneath, photos crossfade above it */
 #sky,.photo{position:fixed;inset:0;width:100%;height:100%}
@@ -228,8 +228,8 @@ var TRENDS={nf:["Animals","Tomb Raider","Crazy Rich, Incredibly Broke","Heart Ey
 var EN_WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 var EN_MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
 var hijriEn=null;try{hijriEn=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{timeZone:"Asia/Riyadh",day:"numeric",month:"long",year:"numeric"})}catch(e){}
-function hijriText(ms){if(!hijriEn)return"";var o={};hijriEn.formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value});
-  return o.day+" "+o.month+" "+(o.year||"").replace(/\D/g,"")+" AH"}
+var HIJRI_MO=["Muharram","Safar","Rabi I","Rabi II","Jumada I","Jumada II","Rajab","Sha'ban","Ramadan","Shawwal","Dhu al-Qadah","Dhu al-Hijjah"];
+function hijriText(ms){var h=hijriParts(ms);if(!h||!h.m)return"";return h.d+" "+HIJRI_MO[h.m-1]+" "+h.y+" AH"}
 
 /* ---------- render ---------- */
 var $=function(id){return document.getElementById(id)};

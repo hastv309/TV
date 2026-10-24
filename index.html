@@ -93,6 +93,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
   .cell,.cell:first-child,.cell.last{padding-inline:0}
   .cell+.cell,.cell.push{border-right:0;border-top:1px solid var(--rule);padding-top:12px;margin-inline-start:0;width:100%}
   .big,.sub{max-width:100%;white-space:normal}
+  .top3 li{max-width:100%;white-space:normal}
 }
 @media (prefers-reduced-motion:reduce){.photo.on{animation:none}.stage,.rot,.photo{transition:none}}
 </style>
@@ -362,7 +363,10 @@ function loadPhotoInfo(done){
       set.photos.forEach(function(p){list.push({src:unsplashURL(p[0],3840,2160,82),artist:p[1]})})});
     pools[per]=shuffle(list)});
   done()}
+/* preview links: ?preview=day | golden | night forces that set and changes photo every 10 s */
+var PREVIEW=(location.search.match(/preview=(day|golden|night)/)||[])[1]||null;
 function periodNow(){
+  if(PREVIEW)return PREVIEW;
   var now=Date.now(),t={};dayPrayers(now).forEach(function(x){t[x.k]=x.at});
   var M=6e4;
   if(now>=t.fajr&&now<t.sunrise+60*M)return"golden";
@@ -430,7 +434,7 @@ loadPhotoInfo(nextPhoto);
 setInterval(tick,5000);
 setInterval(drawSky,60000);
 setInterval(showNew,9000);
-setInterval(nextPhoto,2*60000);
+setInterval(nextPhoto,PREVIEW?10000:2*60000);
 setInterval(function(){if(curPeriod&&periodNow()!==curPeriod)nextPhoto()},60000); // switch at once when the time of day changes
 setInterval(loadWeather,30*60000);
 setInterval(drift,180000);

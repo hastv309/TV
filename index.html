@@ -16,6 +16,8 @@
   --c-hadith:#a8dcb9;      /* soft green for the hadith card label */
   --c-fact:#a9cdfa;        /* soft blue for the fact card label */
   --c-news:#ffb4a6;        /* soft coral for the news card label */
+  --c-nf:#e5484d;          /* dot beside NETFLIX */
+  --c-sh:#3ec7b0;          /* dot beside SHAHID */
   --glass:rgba(8,12,20,.42);
   --glass-edge:rgba(255,250,242,.14);
   --ground:#0c1220;
@@ -95,6 +97,22 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 .soon .big,.soon .sub{color:var(--glow)}
 .dot{width:.6em;height:.6em;border-radius:50%;background:var(--gunner);display:inline-block}
 .chip{padding:0 .5em;border:1px solid var(--rule);border-radius:99px}
+/* streaming top-5 cards */
+.trends{display:flex;gap:clamp(10px,.9vw,18px);margin-inline-start:auto;margin-inline-end:clamp(16px,2.2vw,44px);align-self:flex-end}
+.trend{width:clamp(250px,18.5vw,370px);background:var(--glass);border:1px solid var(--glass-edge);border-radius:14px;padding:clamp(10px,.75vw,15px) clamp(12px,1vw,20px);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);direction:ltr;text-align:left;min-width:0}
+.trend .h{display:flex;align-items:center;gap:.5em;font-weight:700;font-size:clamp(10px,.82vw,16px);letter-spacing:.14em}
+.trend .h i{width:.55em;height:.55em;border-radius:50%}.trend .h i.nf{background:var(--c-nf)}.trend .h i.sh{background:var(--c-sh)}
+.trend .h small{margin-left:auto;font-weight:500;letter-spacing:.06em;color:var(--ink-faint);font-size:.9em}
+.trend .one{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:.55em;margin:.3em 0 .4em}
+.trend .one span{font-family:var(--f-clock);font-size:clamp(28px,2.5vw,48px);font-weight:200;color:var(--glow);line-height:.9;grid-row:span 2}
+.trend .one em{font-style:normal;font-size:clamp(8px,.62vw,12px);letter-spacing:.14em;color:var(--glow)}
+.trend .one b{font-size:clamp(14px,1.25vw,24px);font-weight:700;line-height:1.15;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.trend ol{list-style:none;margin:0;padding:.45em 0 0;border-top:1px solid var(--glass-edge);display:flex;flex-direction:column;gap:.18em;font-size:clamp(11px,.9vw,17px)}
+.trend ol li{display:grid;grid-template-columns:1.35em 1fr;align-items:baseline;color:var(--ink-soft);min-width:0}
+.trend ol li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend ol li em{font-style:normal;font-family:var(--f-clock);color:var(--glow);font-size:1.1em}
+.facts{flex-wrap:nowrap}
 .top3{list-style:none;margin:.1em 0 0;padding:0;display:flex;flex-direction:column;gap:.18em;counter-reset:r}
 .top3 li{counter-increment:r;display:flex;align-items:baseline;justify-content:flex-end;gap:.5em;font-size:clamp(12px,1.12vw,22px);font-weight:500;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22vw}
@@ -113,6 +131,9 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
   .cell+.cell,.cell.push{border-right:0;border-top:1px solid var(--rule);padding-top:12px;margin-inline-start:0;width:100%}
   .big,.sub{max-width:100%;white-space:normal}
   .top3 li{max-width:100%;white-space:normal}
+  .facts{flex-wrap:wrap}
+  .trends{flex-direction:column;margin:0;width:100%}
+  .trend{width:100%}
   .mid{flex-direction:column}
   .cards{width:100%}
   .card .t{-webkit-line-clamp:unset}
@@ -161,15 +182,11 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
       <div class="big" id="ramDays">107 أيام</div>
       <div class="sub" id="ramSub">يبدأ الاثنين 8 فبراير تقريبًا</div>
     </div>
-    <div class="cell push">
-      <div class="lbl en">NETFLIX · TOP MOVIES KSA</div>
-      <ol class="top3 en" id="nfTop"><li>Animals</li><li>Tomb Raider</li><li>Crazy Rich, Incredibly Broke</li></ol>
+    <div class="trends">
+      <article class="trend"><div class="h"><i class="sh"></i>SHAHID<small>TOP 5</small></div><div id="shTop"></div></article>
+      <article class="trend"><div class="h"><i class="nf"></i>NETFLIX<small>TOP 5 · KSA</small></div><div id="nfTop"></div></article>
     </div>
-    <div class="cell">
-      <div class="lbl en">SHAHID · TOP MOVIES</div>
-      <ol class="top3 en" id="shTop"><li>32B</li><li>What's the Big Deal?!</li><li>Blackout</li></ol>
-    </div>
-    <div class="cell last" id="cMatch">
+    <div class="cell last match" id="cMatch">
       <div class="lbl"><span class="dot"></span><span id="mComp">مباراة أرسنال القادمة</span></div>
       <div class="big" id="mTeams">ليفربول × أرسنال</div>
       <div class="sub" id="mWhen">الأحد 1 نوفمبر · 7:30 م</div>
@@ -301,8 +318,12 @@ function render(){
   else{$("mComp").textContent="أرسنال";$("mTeams").textContent="حدّث جدول المباريات";$("mWhen").textContent="انتهت القائمة الحالية"}
 }
 
-function showNew(){["nf","sh"].forEach(function(k){var ol=$(k+"Top");ol.innerHTML="";
-  TRENDS[k].slice(0,5).forEach(function(t){var li=document.createElement("li");li.textContent=t;ol.appendChild(li)})})}
+function showNew(){["nf","sh"].forEach(function(k){var box=$(k+"Top"),l=TRENDS[k]||[];box.innerHTML="";if(!l.length)return;
+  var one=document.createElement("div");one.className="one";
+  var n=document.createElement("span");n.textContent="1";var e=document.createElement("em");e.textContent="#1 THIS WEEK";var b=document.createElement("b");b.textContent=l[0];
+  one.appendChild(n);one.appendChild(e);one.appendChild(b);box.appendChild(one);
+  var ol=document.createElement("ol");l.slice(1,5).forEach(function(t,i){var li=document.createElement("li"),em=document.createElement("em"),sp=document.createElement("span");
+    em.textContent=String(i+2);sp.textContent=t;li.appendChild(em);li.appendChild(sp);ol.appendChild(li)});box.appendChild(ol)})}
 
 /* ---------- landscape sky (redrawn each minute from the real sun altitude) ---------- */
 var cv=$("sky"),cx=cv.getContext("2d");

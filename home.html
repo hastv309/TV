@@ -70,7 +70,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .ep .t{margin-top:12px;font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ep .s{font-size:16px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ep.f{transform:scale(1.06)}.ep.f .th{outline:4px solid #fff}
-.ep.recent .th{background-size:contain;background-color:rgba(255,255,255,.06)}
+.ep.recent{width:300px}.ep.recent .th{height:169px;background-size:cover}.ep.recent .th::before{display:none}
 
 /* trends */
 .trends{display:flex;gap:22px}
@@ -254,8 +254,12 @@ function renderApps(){
 function appCount(){return $("apps").children.length}
 function launchApp(i){
   if(i>=shownApps.length){showHidden=!showHidden;renderApps();focus.col=0;paintFocus();return}
-  var a=shownApps[i];var rec=load("recent",[]).filter(function(p){return p!==a.pkg});rec.unshift(a.pkg);save("recent",rec.slice(0,8));
+  var a=shownApps[i];rememberOpen(a.pkg);
   if(tvCall("launch",a.pkg)===false)toast("Could not open "+a.label)}
+/* recently opened apps, newest first: [{p:package,t:time}] */
+function recents(){return load("recent",[]).map(function(x){return typeof x==="string"?{p:x,t:0}:x})}
+function rememberOpen(pkg){var r=recents().filter(function(x){return x.p!==pkg});r.unshift({p:pkg,t:Date.now()});save("recent",r.slice(0,8))}
+function ago(t){if(!t)return"";var m=Math.round((Date.now()-t)/6e4);if(m<2)return"Just now";if(m<60)return m+" min ago";var h=Math.round(m/60);if(h<24)return h+(h===1?" hour ago":" hours ago");var d=Math.round(h/24);return d===1?"Yesterday":d+" days ago"}
 function moveApp(i,dir){
   var pk=shownApps[i].pkg,ord=apps.map(function(a){return a.pkg}),k=ord.indexOf(pk),t=k+dir;
   if(t<0||t>=ord.length)return;ord.splice(k,1);ord.splice(t,0,pk);save("order",ord);renderApps();focus.col=Math.max(0,Math.min(i+dir,shownApps.length-1));paintFocus()}
@@ -267,8 +271,8 @@ var cwItems=[],cwMode="watch";
 function renderCW(){
   var wn=getWatchNext(),box=$("cw");box.innerHTML="";cwItems=[];
   if(wn&&wn.ok&&wn.items&&wn.items.length){cwMode="watch";cwItems=wn.items.slice(0,10);$("cwTitle").textContent="CONTINUE WATCHING"}
-  else{cwMode="recent";$("cwTitle").textContent="RECENTLY OPENED";
-    var rec=load("recent",[]);rec.forEach(function(p){var a=apps.filter(function(x){return x.pkg===p})[0];if(a)cwItems.push({title:a.label,sub:"Open",pkg:a.pkg,img:a.banner,app:a})})}
+  else{cwMode="recent";$("cwTitle").textContent="JUMP BACK IN";
+    recents().slice(0,5).forEach(function(x){var a=apps.filter(function(y){return y.pkg===x.p})[0];if(a)cwItems.push({title:a.label,sub:ago(x.t)||"Continue where you left off",pkg:a.pkg,img:a.banner,app:a})})}
   $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){
     var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
@@ -277,10 +281,10 @@ function renderCW(){
     if(cwMode==="watch"){var tg=document.createElement("span");tg.className="tag";tg.textContent=((a&&a.label)||"").toUpperCase();th.appendChild(tg);
       if(it.progress>0){var b=document.createElement("div");b.className="bar";b.innerHTML="<span></span>";b.firstChild.style.width=Math.round(Math.min(1,it.progress)*100)+"%";th.appendChild(b)}}
     var t=document.createElement("div");t.className="t";t.textContent=it.title;if(/[؀-ۿ]/.test(it.title))t.classList.add("ar");
-    var s=document.createElement("div");s.className="s";s.textContent=(it.sub||"")+(it.left?" · "+it.left+" min left":"");
+    var s=document.createElement("div");s.className="s";s.textContent=(it.sub||"")+(it.left?" · "+it.left+" min left":"");if(cwMode==="recent")s.textContent=it.sub;
     e.appendChild(th);e.appendChild(t);e.appendChild(s);box.appendChild(e)})}
 function openCW(i){var it=cwItems[i];if(!it)return;
-  if(cwMode==="watch"){if(tvCall("openWatchNext",i)===false)tvCall("launch",it.pkg)}else launchApp(shownApps.indexOf(it.app)>=0?shownApps.indexOf(it.app):0)}
+  if(cwMode==="watch"){if(tvCall("openWatchNext",i)===false)tvCall("launch",it.pkg)}else{rememberOpen(it.pkg);if(tvCall("launch",it.pkg)===false)toast("Could not open "+it.title)}}
 
 /* ---------- trends from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};

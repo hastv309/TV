@@ -13,6 +13,11 @@
   --rule:rgba(255,250,242,.28);
   --glow:#ffd29a;          /* sunlit amber, marks what is close */
   --gunner:#ef3b3f;        /* Arsenal red, a dot only */
+  --c-hadith:#a8dcb9;      /* soft green for the hadith card label */
+  --c-fact:#a9cdfa;        /* soft blue for the fact card label */
+  --c-news:#ffb4a6;        /* soft coral for the news card label */
+  --glass:rgba(8,12,20,.42);
+  --glass-edge:rgba(255,250,242,.14);
   --ground:#0c1220;
   --f-clock:"Outfit","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --f-ar:"IBM Plex Sans Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;
@@ -56,7 +61,21 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 .wx .range{font-size:clamp(12px,1vw,20px);color:var(--ink-soft);margin-top:.25em}
 
 /* clock */
-.mid{display:flex;align-items:flex-start;justify-content:flex-start;min-height:0;padding-top:clamp(8px,1.2vw,24px)}
+.mid{display:flex;align-items:flex-start;justify-content:space-between;gap:clamp(20px,3vw,60px);min-height:0;padding-top:clamp(8px,1.2vw,24px)}
+/* three info cards on the left of the clock */
+.cards{width:clamp(300px,33vw,640px);display:flex;flex-direction:column;gap:clamp(10px,1vw,18px);align-self:center;min-width:0}
+.card{background:var(--glass);border:1px solid var(--glass-edge);border-radius:14px;padding:clamp(12px,1.1vw,22px) clamp(14px,1.3vw,26px);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);min-width:0;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.card .k{display:flex;align-items:center;gap:.5em;font-size:clamp(12px,1vw,20px);font-weight:700;letter-spacing:.02em;margin-bottom:.45em}
+.card .k i{width:.55em;height:.55em;border-radius:50%;display:inline-block}
+.card .k .meta{margin-inline-start:auto;font-weight:500;color:var(--ink-faint);font-size:.9em}
+.card .t{font-size:clamp(15px,1.35vw,26px);line-height:1.6;font-weight:500;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.card .src{margin-top:.35em;font-size:clamp(12px,.92vw,18px);color:var(--ink-soft)}
+.card.hadith .k{color:var(--c-hadith)}.card.hadith .k i{background:var(--c-hadith)}
+.card.hadith .t{font-size:clamp(16px,1.45vw,28px)}
+.card.fact .k{color:var(--c-fact)}.card.fact .k i{background:var(--c-fact)}
+.card.news .k{color:var(--c-news)}.card.news .k i{background:var(--c-news)}
+.card .rot{transition:opacity .7s ease}
 .clock{display:flex;align-items:flex-end;direction:ltr;gap:.06em;line-height:.82}
 .clock #hm{font-family:var(--f-clock);font-weight:200;font-size:clamp(100px,13.5vw,260px);letter-spacing:-.02em}
 .clock .colon{display:inline-block;transform:translateY(-.08em);margin:0 .02em}
@@ -94,6 +113,9 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
   .cell+.cell,.cell.push{border-right:0;border-top:1px solid var(--rule);padding-top:12px;margin-inline-start:0;width:100%}
   .big,.sub{max-width:100%;white-space:normal}
   .top3 li{max-width:100%;white-space:normal}
+  .mid{flex-direction:column}
+  .cards{width:100%}
+  .card .t{-webkit-line-clamp:unset}
 }
 @media (prefers-reduced-motion:reduce){.photo.on{animation:none}.stage,.rot,.photo{transition:none}}
 </style>
@@ -118,6 +140,14 @@ body{background:var(--ground);color:var(--ink);font-family:var(--f-ar);overflow:
 
   <section class="mid">
     <div class="clock"><span id="hm">9:24</span><span class="ampm" id="ampm">م</span></div>
+    <div class="cards">
+      <article class="card hadith"><div class="k"><i></i>حديث اليوم</div>
+        <div class="t" id="hdT">«إنما الأعمال بالنيات، وإنما لكل امرئ ما نوى»</div><div class="src" id="hdS">متفق عليه</div></article>
+      <article class="card fact"><div class="k"><i></i>معلومة اليوم</div>
+        <div class="t" id="fcT">قلب الإنسان ينبض قرابة 100 ألف مرة في اليوم.</div></article>
+      <article class="card news"><div class="k"><i></i>آخر الأخبار<span class="meta" id="nwM"></span></div>
+        <div class="rot" id="nwR"><div class="t" id="nwT">…</div><div class="src" id="nwS"></div></div></article>
+    </div>
   </section>
 
   <footer class="facts">
@@ -428,8 +458,101 @@ function loadWeather(){
 /* small drift every few minutes to protect the panel from burn-in */
 function drift(){$("stage").style.transform="translate("+((Math.random()*12-6)|0)+"px,"+((Math.random()*10-5)|0)+"px)"}
 
+/* ---------- hadith of the day: Sahih al-Bukhari and Sahih Muslim only ---------- */
+var HADITH=[
+ ["إنما الأعمال بالنيات، وإنما لكل امرئ ما نوى","متفق عليه"],
+ ["من كان يؤمن بالله واليوم الآخر فليقل خيرًا أو ليصمت","متفق عليه"],
+ ["لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه","متفق عليه"],
+ ["المسلم من سلم المسلمون من لسانه ويده","متفق عليه"],
+ ["ليس الشديد بالصُّرَعة، إنما الشديد الذي يملك نفسه عند الغضب","متفق عليه"],
+ ["كلمتان خفيفتان على اللسان، ثقيلتان في الميزان، حبيبتان إلى الرحمن: سبحان الله وبحمده، سبحان الله العظيم","متفق عليه"],
+ ["خيركم من تعلّم القرآن وعلّمه","رواه البخاري"],
+ ["من سلك طريقًا يلتمس فيه علمًا سهّل الله له به طريقًا إلى الجنة","رواه مسلم"],
+ ["الطُّهور شطر الإيمان","رواه مسلم"],
+ ["إن الله رفيق يحب الرفق في الأمر كله","متفق عليه"],
+ ["يسّروا ولا تعسّروا، وبشّروا ولا تنفّروا","متفق عليه"],
+ ["الدين النصيحة","رواه مسلم"],
+ ["من لا يَرحم لا يُرحم","متفق عليه"],
+ ["أحب الأعمال إلى الله أدومها وإن قلّ","متفق عليه"],
+ ["من دلّ على خير فله مثل أجر فاعله","رواه مسلم"],
+ ["ما نقصت صدقة من مال","رواه مسلم"],
+ ["لا تحقرنّ من المعروف شيئًا، ولو أن تلقى أخاك بوجه طلق","رواه مسلم"],
+ ["المؤمن للمؤمن كالبنيان يشدّ بعضه بعضًا","متفق عليه"],
+ ["إن الله لا ينظر إلى صوركم وأموالكم، ولكن ينظر إلى قلوبكم وأعمالكم","رواه مسلم"],
+ ["من نفّس عن مؤمن كربة من كرب الدنيا، نفّس الله عنه كربة من كرب يوم القيامة","رواه مسلم"],
+ ["إن الصدق يهدي إلى البر، وإن البر يهدي إلى الجنة","متفق عليه"],
+ ["نعمتان مغبون فيهما كثير من الناس: الصحة والفراغ","رواه البخاري"],
+ ["كن في الدنيا كأنك غريب أو عابر سبيل","رواه البخاري"],
+ ["اليد العليا خير من اليد السفلى","متفق عليه"],
+ ["إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: صدقة جارية، أو علم يُنتفع به، أو ولد صالح يدعو له","رواه مسلم"],
+ ["إن الله كتب الإحسان على كل شيء","رواه مسلم"],
+ ["البرّ حسن الخلق","رواه مسلم"],
+ ["من أحب أن يُبسط له في رزقه ويُنسأ له في أثره فليصل رحمه","متفق عليه"],
+ ["لا تغضب","رواه البخاري"],
+ ["الكلمة الطيبة صدقة","متفق عليه"]];
+
+/* ---------- fact of the day ---------- */
+var FACTS=[
+ "قلب الإنسان ينبض قرابة 100 ألف مرة في اليوم.",
+ "العسل لا يفسد إذا حُفظ جيدًا، وقد عُثر على عسل صالح للأكل في مقابر مصرية عمرها آلاف السنين.",
+ "يحتاج ضوء الشمس نحو 8 دقائق و20 ثانية ليصل إلى الأرض.",
+ "الربع الخالي أكبر صحراء رملية متصلة في العالم.",
+ "للأخطبوط ثلاثة قلوب ودم لونه أزرق.",
+ "توصي منظمة الصحة العالمية البالغين بـ150 دقيقة على الأقل من النشاط البدني المعتدل أسبوعيًا.",
+ "يشكّل الماء نحو 60٪ من وزن جسم الإنسان البالغ.",
+ "يحتوي جسم الإنسان البالغ على 206 عظمة.",
+ "يستهلك الدماغ نحو 20٪ من طاقة الجسم مع أن وزنه قرابة 2٪ فقط.",
+ "يبتعد القمر عن الأرض بنحو 3.8 سم كل سنة.",
+ "اليوم على كوكب الزهرة أطول من سنته.",
+ "مينا الأسنان أقسى مادة في جسم الإنسان.",
+ "حرارة البرق أعلى من حرارة سطح الشمس بنحو خمس مرات.",
+ "المحيط الهادئ وحده أكبر من مساحة اليابسة كلها على الأرض.",
+ "الخفافيش هي الثدييات الوحيدة القادرة على الطيران الحقيقي.",
+ "تتحمّل الإبل فقدان ربع وزنها تقريبًا من الماء دون أن تتأذى.",
+ "عين النعامة أكبر من دماغها.",
+ "ضوء الشاشات قبل النوم يقلل إفراز الميلاتونين ويؤخر النوم.",
+ "يبلغ ارتفاع قمة إيفرست 8,849 مترًا فوق سطح البحر.",
+ "يغطي الماء نحو 71٪ من سطح الأرض.",
+ "يرمش الإنسان في المتوسط من 15 إلى 20 مرة في الدقيقة.",
+ "بدأ إنتاج النفط تجاريًا في المملكة عام 1938 من بئر الدمام رقم 7 المعروفة ببئر الخير.",
+ "أُعلن توحيد المملكة العربية السعودية باسمها الحالي عام 1932.",
+ "تُعرف العربية بلغة الضاد لاختصاصها بهذا الصوت.",
+ "الشوكولاتة سامة للكلاب والقطط بسبب مادة الثيوبرومين.",
+ "يزيد طول برج إيفل في الصيف حتى 15 سم تقريبًا بسبب تمدد الحديد بالحرارة.",
+ "الأرض ليست كرة تامة، فهي منتفخة قليلًا عند خط الاستواء.",
+ "المشي الخفيف بعد الوجبة يساعد على ضبط ارتفاع سكر الدم.",
+ "المملكة من أكبر منتجي التمور في العالم.",
+ "لا يستطيع الفيل القفز."];
+
+/* ---------- news: news.json in the repo, refreshed three times a day by a scheduled task ---------- */
+var NEWS_FALLBACK={updated:"",items:[]};
+var news=NEWS_FALLBACK,nwIdx=0;
+function dayNumber(){var p=rParts(Date.now());return Math.floor(Date.UTC(p.y,p.m-1,p.d)/DAY)}
+function showDaily(){
+  var d=dayNumber(),h=HADITH[d%HADITH.length],f=FACTS[(d*7+3)%FACTS.length];
+  $("hdT").textContent="«"+h[0]+"»";$("hdS").textContent=h[1];
+  $("fcT").textContent=f}
+function loadNews(){
+  if(!/^https?:/.test(location.protocol))return;
+  fetch("news.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})
+  .then(function(j){if(j&&j.items&&j.items.length){news=j;nwIdx=0;showNews(true)}}).catch(function(){})}
+function showNews(now){
+  var items=news.items||[],box=$("nwR");
+  if(!items.length){$("nwT").textContent="بانتظار أول تحديث للأخبار";$("nwS").textContent="";$("nwM").textContent="";return}
+  var x=items[nwIdx%items.length],k=nwIdx%items.length;nwIdx++;
+  var paint=function(){$("nwT").textContent=x.t;$("nwS").textContent=(x.s||"");
+    var m=(k+1)+"/"+items.length;
+    if(news.updated){var u=Date.parse(news.updated);if(!isNaN(u)){var up=rParts(u);m+=" · تحديث "+(up.h<10?"0":"")+up.h+":"+(up.mi<10?"0":"")+up.mi}}
+    $("nwM").textContent=m;box.style.opacity=1};
+  if(now){paint();return}
+  box.style.opacity=0;setTimeout(paint,700)}
+
 function tick(){try{render()}catch(e){}}
 tick();drawSky();showNew();loadWeather();
+showDaily();showNews(true);loadNews();
+setInterval(showDaily,10*60000);
+setInterval(function(){showNews(false)},12000);
+setInterval(loadNews,20*60000);
 loadPhotoInfo(nextPhoto);
 setInterval(tick,5000);
 setInterval(drawSky,60000);

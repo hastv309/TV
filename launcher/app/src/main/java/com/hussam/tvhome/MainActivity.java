@@ -26,6 +26,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -65,6 +66,46 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        client = new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri u = request.getUrl();
+                // Stay on our own page; never navigate the home screen elsewhere.
+                return !(HOME_HOST.equals(u.getHost()) || "file".equals(u.getScheme()));
+            }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                // Renderer crashed or was killed for memory: start a fresh WebView right away.
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(MainActivity.this::buildWebView);
+                return true;
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                if (request.isForMainFrame() && !usingFallback) {
+                    usingFallback = true;
+                    view.loadUrl(FALLBACK_URL);
+                }
+            }
+        };
+        buildWebView();
+
+        if (Build.VERSION.SDK_INT >= 23
+                && checkSelfPermission("com.android.providers.tv.permission.READ_EPG_DATA") != PackageManager.PERMISSION_GRANTED) {
+            try {
+                requestPermissions(new String[]{"com.android.providers.tv.permission.READ_EPG_DATA"}, 1);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    WebViewClient client;
+
+    void buildWebView() {
+        if (web != null) {
+            try { ((android.view.ViewGroup) web.getParent()).removeView(web); web.destroy(); } catch (Exception ignored) { }
+        }
         web = new WebView(this);
         web.setBackgroundColor(Color.rgb(13, 10, 16));
         WebSettings s = web.getSettings();
@@ -79,34 +120,12 @@ public class MainActivity extends Activity {
         web.setVerticalScrollBarEnabled(false);
         web.setHorizontalScrollBarEnabled(false);
         web.addJavascriptInterface(new Bridge(), "Tv");
-        web.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri u = request.getUrl();
-                // Stay on our own page; never navigate the home screen elsewhere.
-                return !(HOME_HOST.equals(u.getHost()) || "file".equals(u.getScheme()));
-            }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                if (request.isForMainFrame() && !usingFallback) {
-                    usingFallback = true;
-                    view.loadUrl(FALLBACK_URL);
-                }
-            }
-        });
+        web.setWebViewClient(client);
         setContentView(web);
         web.setFocusable(true);
         web.requestFocus();
+        usingFallback = false;
         web.loadUrl(HOME_URL + "?d=" + (System.currentTimeMillis() / 3600000L));
-
-        if (Build.VERSION.SDK_INT >= 23
-                && checkSelfPermission("com.android.providers.tv.permission.READ_EPG_DATA") != PackageManager.PERMISSION_GRANTED) {
-            try {
-                requestPermissions(new String[]{"com.android.providers.tv.permission.READ_EPG_DATA"}, 1);
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     void js(String code) {
@@ -116,7 +135,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        appCache.clear();
         js("window.onResumeHome&&onResumeHome()");
     }
 

@@ -33,7 +33,11 @@ jobs:
 
       - name: Build APK
         working-directory: launcher
-        run: gradle assembleRelease --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon 2>&1 | tee build.log || {
+            grep -E "error:|What went wrong|Could not|Duplicate class|> " build.log | head -25 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1; }
 
       - name: Rename
         run: cp launcher/app/build/outputs/apk/release/app-release.apk tvhome.apk

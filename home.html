@@ -46,6 +46,12 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .ib.f{padding:0 24px;background:#fbf7f0;color:#140d10}.ib.f em{display:inline}
 .ib.armed{box-shadow:inset 0 0 0 2px var(--glow)}
 
+/* clean sweep */
+.sweep{position:fixed;top:0;bottom:0;left:0;width:520px;pointer-events:none;opacity:0;transform:translateX(-600px);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.07) 35%,rgba(255,255,255,.22) 50%,rgba(255,255,255,.07) 65%,transparent);z-index:50}
+.sweep.go{animation:sweep 1.1s cubic-bezier(.45,.05,.3,1) forwards}
+@keyframes sweep{0%{opacity:1;transform:translateX(-600px)}85%{opacity:1}100%{opacity:0;transform:translateX(2000px)}}
+
 /* sections */
 .sec{position:absolute;left:96px;right:0}
 .h{font-size:19px;letter-spacing:.18em;color:var(--soft);font-weight:600;margin-bottom:16px}
@@ -111,17 +117,17 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
     <nav class="btns" id="btns"></nav>
   </header>
 
-  <section class="sec" style="top:330px">
+  <section class="sec" style="top:560px">
     <div class="name" id="appName">&nbsp;</div>
     <div class="viewport"><div class="row" id="apps"></div></div>
   </section>
 
-  <section class="sec" style="top:640px" id="secCW">
+  <section class="sec" style="top:640px" id="secCW" hidden>
     <div class="h" id="cwTitle">CONTINUE WATCHING</div>
     <div class="viewport"><div class="cw row" id="cw"></div></div>
   </section>
 
-  <section class="sec" style="top:1010px" id="secTr">
+  <section class="sec" style="top:1010px" id="secTr" hidden>
     <div class="h">TRENDING THIS WEEK</div>
     <div class="trends" id="trends"></div>
   </section>
@@ -129,6 +135,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 
 <div class="menu" id="menu" hidden><div class="box"><h3 id="mTitle"></h3><div id="mOpts"></div></div></div>
 <div class="toast" id="toast" hidden></div>
+<div class="sweep" id="sweep"></div>
 
 <script>
 /* ---------- astronomy: Umm al-Qura prayer times for Riyadh ---------- */
@@ -205,7 +212,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function svg(p,extra){return'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"'+(extra||"")+'>'+p+'</svg>'}
 var ICONS={
  screensaver:'<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/>',
- sleep:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><path d="M15 3h4l-4 4h4"/>',
+ clean:'<path d="M20 3l-7 7"/><path d="M10.5 8.5l5 5"/><path d="M10 9l-6 3.5c.6 3.6 3.9 7 7.5 7.5L15 14z"/><path d="M7.2 17.6l2.3-2.3M10.5 19.6l1.6-1.6"/>',
  wifi:'<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a9.5 9.5 0 0 1 13 0"/><path d="M8.7 16a5 5 0 0 1 6.6 0"/><circle cx="12" cy="19.3" r="1.2" fill="currentColor"/>',
  settings:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
  sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
@@ -214,7 +221,7 @@ var ICONS={
  rain:'<path d="M7.5 16h10a4 4 0 0 0 .4-8 5.5 5.5 0 0 0-10.6 1.2A3.4 3.4 0 0 0 7.5 16z"/><path d="M9 19.5l-1 2M13 19.5l-1 2M17 19.5l-1 2"/>'};
 
 /* ---------- buttons ---------- */
-var BTNS=[{id:"screensaver",label:"Screensaver"},{id:"sleep",label:"Sleep"},{id:"wifi",label:"Wi-Fi"},{id:"settings",label:"Settings"}];
+var BTNS=[{id:"screensaver",label:"Screensaver"},{id:"clean",label:"Clean"},{id:"wifi",label:"Wi-Fi"},{id:"settings",label:"Settings"}];
 var sleepAt=0;
 function renderBtns(){var n=$("btns");n.innerHTML="";
   BTNS.forEach(function(b){var s=document.createElement("span");s.className="ib";s.innerHTML=svg(ICONS[b.id])+"<em></em>";
@@ -224,6 +231,7 @@ function doBtn(id){
   if(id==="settings")tvCall("openSettings");
   else if(id==="wifi")tvCall("openWifi");
   else if(id==="screensaver"){if(tvCall("screensaver")===false)toast("Screensaver is not available")}
+  else if(id==="clean")cleanUp();
   else if(id==="sleep")openMenu("Sleep timer",[["Turn off now",function(){sleepIn(-1)}],["In 30 minutes",function(){sleepIn(30)}],["In 60 minutes",function(){sleepIn(60)}],
     ["In 90 minutes",function(){sleepIn(90)}],["Cancel timer",function(){sleepIn(0)}]])}
 function sleepIn(min){
@@ -268,7 +276,7 @@ function toggleHide(i){var pk=shownApps[i].pkg,h=load("hidden",[]),k=h.indexOf(p
 
 /* ---------- continue watching (falls back to recently opened apps) ---------- */
 var cwItems=[],cwMode="watch";
-function renderCW(){
+function renderCW(){cwItems=[];$("secCW").hidden=true;return;
   var wn=getWatchNext(),box=$("cw");box.innerHTML="";cwItems=[];
   if(wn&&wn.ok&&wn.items&&wn.items.length){cwMode="watch";cwItems=wn.items.slice(0,10);$("cwTitle").textContent="CONTINUE WATCHING"}
   else{cwMode="recent";$("cwTitle").textContent="JUMP BACK IN";
@@ -288,7 +296,7 @@ function openCW(i){var it=cwItems[i];if(!it)return;
 
 /* ---------- trends from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
-function renderTrends(){
+function renderTrends(){$("secTr").hidden=true;return;
   var box=$("trends");box.innerHTML="";
   [["nf","NETFLIX","TOP 5 · KSA","var(--nf)"],["sh","SHAHID","TOP 5","var(--sh)"]].forEach(function(p){
     var l=DATA.trends[p[0]]||[];if(!l.length)return;
@@ -404,6 +412,15 @@ function sfx(kind){
     o.type="sine";o.frequency.setValueAtTime(p[0],t);o.frequency.exponentialRampToValueAtTime(p[1],t+p[2]);
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(p[3],t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+p[2]+0.03);
     o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+p[2]+0.05)}catch(e){}}
+/* ---------- clean: sweep animation, then close background apps ---------- */
+var cleaning=false;
+function cleanUp(){
+  if(cleaning)return;cleaning=true;
+  var s=$("sweep");s.classList.remove("go");void s.offsetWidth;s.classList.add("go");
+  if(HAS_TV&&Tv.clean){Tv.clean()}else setTimeout(function(){onCleaned(640)},1300)}
+window.onCleaned=function(mb){
+  cleaning=false;
+  toast(mb>=50?"Cleaned · "+(mb>=1024?(mb/1024).toFixed(1)+" GB":mb+" MB")+" freed":"All clean · background apps closed")};
 var toastT=null;function toast(t){var e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){e.hidden=true},3200)}
 var $=function(id){return document.getElementById(id)};
 

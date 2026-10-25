@@ -226,6 +226,36 @@ public class MainActivity extends Activity {
 
     class Bridge {
 
+        /** Closes every app running in the background (launchable apps only) and reports the memory freed. */
+        @JavascriptInterface
+        public void clean() {
+            new Thread(() -> {
+                long freed = 0;
+                int n = 0;
+                try {
+                    android.app.ActivityManager am = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    android.app.ActivityManager.MemoryInfo before = new android.app.ActivityManager.MemoryInfo();
+                    am.getMemoryInfo(before);
+                    PackageManager pm = getPackageManager();
+                    Set<String> pkgs = new HashSet<>();
+                    for (ResolveInfo ri : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER), 0))
+                        pkgs.add(ri.activityInfo.packageName);
+                    for (ResolveInfo ri : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0))
+                        pkgs.add(ri.activityInfo.packageName);
+                    pkgs.remove(getPackageName());
+                    for (String p : pkgs) {
+                        try { am.killBackgroundProcesses(p); n++; } catch (Exception ignored) { }
+                    }
+                    Thread.sleep(1200);
+                    android.app.ActivityManager.MemoryInfo after = new android.app.ActivityManager.MemoryInfo();
+                    am.getMemoryInfo(after);
+                    freed = Math.max(0, (after.availMem - before.availMem) / (1024 * 1024));
+                } catch (Exception ignored) {
+                }
+                js("window.onCleaned&&onCleaned(" + freed + ")");
+            }).start();
+        }
+
         @JavascriptInterface
         public String apps() {
             JSONArray out = new JSONArray();

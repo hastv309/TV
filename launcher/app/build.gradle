@@ -52,7 +52,7 @@ dependencies {
 android {
     packaging {
         resources {
-            excludes += ['META-INF/*.kotlin_module', 'META-INF/versions/**', 'META-INF/INDEX.LIST']
+            excludes += ['META-INF/*.kotlin_module', 'META-INF/versions/**', 'META-INF/INDEX.LIST', 'META-INF/LICENSE*', 'META-INF/NOTICE*', 'META-INF/DEPENDENCIES']
         }
     }
 }

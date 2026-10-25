@@ -226,12 +226,17 @@ public class MainActivity extends Activity {
 
     class Bridge {
 
-        /** Closes every app running in the background (launchable apps only) and reports the memory freed. */
+        /**
+         * Force-stops every launchable app and reports the memory freed.
+         * Full mode connects to the TV's own network ADB (127.0.0.1:5555) and runs "am force-stop";
+         * the first time, the TV asks to allow the connection. If that fails, it falls back to
+         * closing background processes only.
+         */
         @JavascriptInterface
         public void clean() {
             new Thread(() -> {
                 long freed = 0;
-                int n = 0;
+                boolean full = false;
                 try {
                     android.app.ActivityManager am = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
                     android.app.ActivityManager.MemoryInfo before = new android.app.ActivityManager.MemoryInfo();
@@ -243,8 +248,12 @@ public class MainActivity extends Activity {
                     for (ResolveInfo ri : pm.queryIntentActivities(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0))
                         pkgs.add(ri.activityInfo.packageName);
                     pkgs.remove(getPackageName());
-                    for (String p : pkgs) {
-                        try { am.killBackgroundProcesses(p); n++; } catch (Exception ignored) { }
+
+                    full = forceStopViaAdb(pkgs);
+                    if (!full) {
+                        for (String p : pkgs) {
+                            try { am.killBackgroundProcesses(p); } catch (Exception ignored) { }
+                        }
                     }
                     Thread.sleep(1200);
                     android.app.ActivityManager.MemoryInfo after = new android.app.ActivityManager.MemoryInfo();
@@ -252,8 +261,35 @@ public class MainActivity extends Activity {
                     freed = Math.max(0, (after.availMem - before.availMem) / (1024 * 1024));
                 } catch (Exception ignored) {
                 }
-                js("window.onCleaned&&onCleaned(" + freed + ")");
+                js("window.onCleaned&&onCleaned(" + freed + "," + full + ")");
             }).start();
+        }
+
+        boolean forceStopViaAdb(Set<String> pkgs) {
+            try {
+                java.io.File priv = new java.io.File(getFilesDir(), "adbkey");
+                java.io.File pub = new java.io.File(getFilesDir(), "adbkey.pub");
+                if (!priv.exists()) {
+                    dadb.AdbKeyPair.generate(priv, pub);
+                }
+                if (!getSharedPreferences("home", Context.MODE_PRIVATE).getBoolean("adbOk", false)) {
+                    js("window.toast&&toast('On the TV prompt, tick Always allow and press Allow')");
+                }
+                dadb.AdbKeyPair kp = dadb.AdbKeyPair.read(priv, pub);
+                StringBuilder cmd = new StringBuilder();
+                for (String p : pkgs) {
+                    if (p.matches("[A-Za-z0-9._]+")) cmd.append("am force-stop ").append(p).append(';');
+                }
+                cmd.append("echo ok");
+                try (dadb.Dadb d = dadb.Dadb.create("127.0.0.1", 5555, kp, 3000, 60000)) {
+                    String out = d.shell(cmd.toString()).getAllOutput();
+                    boolean ok = out.contains("ok");
+                    if (ok) getSharedPreferences("home", Context.MODE_PRIVATE).edit().putBoolean("adbOk", true).apply();
+                    return ok;
+                }
+            } catch (Throwable t) {
+                return false;
+            }
         }
 
         @JavascriptInterface

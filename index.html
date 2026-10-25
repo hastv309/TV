@@ -568,9 +568,17 @@ function showNews(now){
   if(now){paint();return}
   box.style.opacity=0;setTimeout(paint,700)}
 
+/* shared data (trends + fixtures) from data.json; the embedded lists above are the offline fallback */
+function loadData(){
+  if(!/^https?:/.test(location.protocol))return;
+  fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+    if(d.trends&&d.trends.nf&&d.trends.sh){TRENDS=d.trends;showNew()}
+    if(d.fixtures&&d.fixtures.length){FIX=d.fixtures.map(function(r){return{at:Date.parse(r[0]),comp:r[1]==="CL"?CL:PL,home:r[4]||r[2],away:r[5]||r[3]}});tick()}
+  }).catch(function(){})}
 function tick(){try{render()}catch(e){}}
 tick();drawSky();showNew();loadWeather();
 showDaily();showNews(true);loadNews();
+loadData();setInterval(loadData,60*60000);
 setInterval(showDaily,10*60000);
 setInterval(function(){showNews(false)},12000);
 setInterval(loadNews,20*60000);

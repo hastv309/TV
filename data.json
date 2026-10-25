@@ -1,0 +1,141 @@
+{
+ "_note": "Shared by index.html (screensaver) and home.html (launcher). fixtures: [kickoff UTC, PL|CL, home EN, away EN, home AR, away AR]",
+ "trends": {
+  "nf": [
+   "Animals",
+   "Tomb Raider",
+   "Crazy Rich, Incredibly Broke",
+   "Heart Eyes",
+   "Ben-Hur"
+  ],
+  "sh": [
+   "32B",
+   "What's the Big Deal?!",
+   "Blackout",
+   "Face to Face",
+   "A Matter of Life and Death"
+  ]
+ },
+ "fixtures": [
+  [
+   "2026-11-01T16:30Z",
+   "PL",
+   "Liverpool",
+   "Arsenal",
+   "ليفربول",
+   "أرسنال"
+  ],
+  [
+   "2026-11-04T20:00Z",
+   "CL",
+   "Slavia Prague",
+   "Arsenal",
+   "سلافيا براغ",
+   "أرسنال"
+  ],
+  [
+   "2026-11-07T15:00Z",
+   "PL",
+   "Arsenal",
+   "Hull City",
+   "أرسنال",
+   "هل سيتي"
+  ],
+  [
+   "2026-11-21T17:30Z",
+   "PL",
+   "Newcastle",
+   "Arsenal",
+   "نيوكاسل",
+   "أرسنال"
+  ],
+  [
+   "2026-11-24T20:00Z",
+   "CL",
+   "Arsenal",
+   "Dortmund",
+   "أرسنال",
+   "دورتموند"
+  ],
+  [
+   "2026-11-29T16:30Z",
+   "PL",
+   "Arsenal",
+   "Man City",
+   "أرسنال",
+   "مانشستر سيتي"
+  ],
+  [
+   "2026-12-02T20:15Z",
+   "PL",
+   "Brentford",
+   "Arsenal",
+   "برينتفورد",
+   "أرسنال"
+  ],
+  [
+   "2026-12-06T16:30Z",
+   "PL",
+   "Tottenham",
+   "Arsenal",
+   "توتنهام",
+   "أرسنال"
+  ],
+  [
+   "2026-12-09T20:00Z",
+   "CL",
+   "Arsenal",
+   "Real Madrid",
+   "أرسنال",
+   "ريال مدريد"
+  ],
+  [
+   "2026-12-13T14:00Z",
+   "PL",
+   "Arsenal",
+   "Bournemouth",
+   "أرسنال",
+   "بورنموث"
+  ],
+  [
+   "2026-12-20T16:30Z",
+   "PL",
+   "Arsenal",
+   "Man United",
+   "أرسنال",
+   "مانشستر يونايتد"
+  ],
+  [
+   "2026-12-27T19:00Z",
+   "PL",
+   "Crystal Palace",
+   "Arsenal",
+   "كريستال بالاس",
+   "أرسنال"
+  ],
+  [
+   "2026-12-30T19:30Z",
+   "PL",
+   "Fulham",
+   "Arsenal",
+   "فولهام",
+   "أرسنال"
+  ],
+  [
+   "2027-01-20T20:00Z",
+   "CL",
+   "Real Betis",
+   "Arsenal",
+   "ريال بيتيس",
+   "أرسنال"
+  ],
+  [
+   "2027-01-27T20:00Z",
+   "CL",
+   "Arsenal",
+   "Sabah",
+   "أرسنال",
+   "صباح"
+  ]
+ ]
+}

@@ -1,0 +1,48 @@
+name: Build TV Home
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'launcher/**'
+      - '.github/workflows/launcher.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      - name: Bundle the home page as the offline fallback
+        run: |
+          mkdir -p launcher/app/src/main/assets
+          cp home.html launcher/app/src/main/assets/home.html
+
+      - name: Build APK
+        working-directory: launcher
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: Rename
+        run: cp launcher/app/build/outputs/apk/release/app-release.apk tvhome.apk
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tvhome
+          name: TV Home
+          body: "Home screen for the Xiaomi TV. Build ${{ github.run_number }}."
+          files: tvhome.apk
+          make_latest: true

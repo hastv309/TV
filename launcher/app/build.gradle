@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger()
+
+android {
+    namespace 'com.hussam.tvhome'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.hussam.tvhome'
+        minSdk 26
+        targetSdk 34
+        versionCode runNumber
+        versionName "1.0." + runNumber
+    }
+
+    signingConfigs {
+        release {
+            // Fixed key so every new build installs over the previous one.
+            storeFile file('../tvhome.keystore')
+            storePassword 'tvhome-key'
+            keyAlias 'tvhome'
+            keyPassword 'tvhome-key'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}

@@ -486,14 +486,16 @@ var news={items:[]},nwIdx=0;
 function loadNews(){
   var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
   fetch(base+"news.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})
-  .then(function(j){if(j&&j.items&&j.items.length){news=j;nwIdx=0;showNews(true)}}).catch(function(){})}
+  .then(function(j){if(j&&j.items&&j.items.length){var fresh=j.updated!==news.updated;news=j;if(fresh){nwIdx=0;showNews(true);fcIdx=0;showFact(false)}}}).catch(function(){})}
 function showNews(now){
   var items=news.items||[];if(!items.length){$("feed").querySelector(".news").hidden=true;return}
   $("feed").querySelector(".news").hidden=false;
   var k=nwIdx%items.length,x=items[k];nwIdx++;
   var paint=function(){$("nwT").textContent=x.t;$("nwS").textContent=x.s||"";$("nwM").textContent=(k+1)+"/"+items.length;$("nwR").style.opacity=1};
   if(now){paint();return}$("nwR").style.opacity=0;setTimeout(paint,700)}
-function showFact(){var p=rParts(Date.now()),d=Math.floor(Date.UTC(p.y,p.m-1,p.d)/DAY);$("fcT").textContent=FACTS[(d*7+3)%FACTS.length]}
+var fcIdx=Math.floor(Math.random()*1000);
+function showFact(fade){var list=(news.facts&&news.facts.length)?news.facts:FACTS,x=list[fcIdx%list.length];fcIdx++;
+  if(!fade){$("fcT").textContent=x;return}$("fcR").style.opacity=0;setTimeout(function(){$("fcT").textContent=x;$("fcR").style.opacity=1},700)}
 
 /* ---------- prayer alerts: hand the next prayer times to the app, which shows a banner + voice ---------- */
 var PN_AR={fajr:"الفجر",dhuhr:"الظهر",asr:"العصر",maghrib:"المغرب",isha:"العشاء"};
@@ -508,7 +510,7 @@ function schedulePrayers(){
 renderBtns();renderApps();renderCW();renderTrends();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
 loadData();loadWeather();loadNews();showFact();schedulePrayers();
-setInterval(function(){showNews(false)},12000);setInterval(loadNews,60*60000);setInterval(function(){showFact();schedulePrayers()},60*60000);
+setInterval(function(){showNews(false)},12000);setInterval(loadNews,15*60000);setInterval(function(){showFact(true)},90000);setInterval(schedulePrayers,60*60000);
 setInterval(function(){renderInfo();if(sleepAt){renderBtns();paintFocus()}},10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
 setInterval(function(){if(!menuState)renderCW()},5*60000);

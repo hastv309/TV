@@ -12,9 +12,35 @@ public class WatchService extends AccessibilityService {
     private static final Pattern EP = Pattern.compile("^\\s*(?:الحلقة|Episode)\\s*(\\d+)\\s*[-–—]\\s*(.+?)\\s*$");
     private long last;
 
+    private final java.util.LinkedHashSet<String> seen = new java.util.LinkedHashSet<>();
+
+    /** Probe for IPTV apps: logs the on-screen text (tag TVHW) so we can learn where the title shows. */
+    private void probe(String pkg, AccessibilityNodeInfo n, int depth) {
+        if (n == null || depth > 30) return;
+        CharSequence t = n.getText(), d = n.getContentDescription();
+        for (CharSequence x : new CharSequence[]{t, d}) {
+            if (x == null || x.length() == 0) continue;
+            String line = pkg + " | " + (n.getViewIdResourceName() == null ? "" : n.getViewIdResourceName()) + " | " + x;
+            if (seen.add(line)) {
+                android.util.Log.i("TVHW", line);
+                if (seen.size() > 400) seen.remove(seen.iterator().next());
+            }
+        }
+        for (int i = 0; i < n.getChildCount(); i++) probe(pkg, n.getChild(i), depth + 1);
+    }
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent e) {
-        if (e == null || e.getPackageName() == null || !"net.mbc.shahidTV".contentEquals(e.getPackageName())) return;
+        if (e == null || e.getPackageName() == null) return;
+        String pkg = e.getPackageName().toString();
+        if (pkg.startsWith("com.mbm_soft")) {
+            long now = System.currentTimeMillis();
+            if (now - last < 1500) return;
+            last = now;
+            probe(pkg, getRootInActiveWindow(), 0);
+            return;
+        }
+        if (!"net.mbc.shahidTV".equals(pkg)) return;
         long now = System.currentTimeMillis();
         if (now - last < 1500) return;
         last = now;

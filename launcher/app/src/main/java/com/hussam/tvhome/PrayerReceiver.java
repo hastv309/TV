@@ -7,8 +7,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,7 +22,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-/** At prayer time: a banner slides down over whatever is on screen, a soft chime, then a voice says the prayer. */
+/** At prayer time: a banner slides down over whatever is on screen, then a calm voice says the prayer (no music). */
 public class PrayerReceiver extends BroadcastReceiver {
     static TextToSpeech tts;
 
@@ -43,12 +41,11 @@ public class PrayerReceiver extends BroadcastReceiver {
         final PendingResult pr = goAsync();
         Handler h = new Handler(Looper.getMainLooper());
         h.post(() -> show(c, ar, en, time));
-        h.postDelayed(() -> speak(c, "حان الآن موعد صلاة " + ar), 1400);
+        h.postDelayed(() -> speak(c, "حان الآن موعد صلاة " + ar), 700);
         h.postDelayed(pr::finish, 9000);
     }
 
     static void show(Context c, String ar, String en, String time) {
-        playChime(c);
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(c)) return;
         WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
         float dp = c.getResources().getDisplayMetrics().density;
@@ -95,17 +92,6 @@ public class PrayerReceiver extends BroadcastReceiver {
                 card.animate().alpha(0f).translationY(-120 * dp).setDuration(450).withEndAction(() -> {
                     try { wm.removeView(card); } catch (Exception ignored) { }
                 }).start(), 8000);
-    }
-
-    static void playChime(Context c) {
-        try {
-            MediaPlayer mp = MediaPlayer.create(c, R.raw.chime, new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build(), 0);
-            if (mp == null) return;
-            mp.setOnCompletionListener(MediaPlayer::release);
-            mp.start();
-        } catch (Exception ignored) { }
     }
 
     static void speak(Context c, String text) {

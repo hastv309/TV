@@ -79,7 +79,17 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .app.more{background:rgba(255,255,255,.08);border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--soft)}
 .viewport{overflow:visible;padding:18px 0 18px 18px;margin-left:-18px}
 
-/* continue watching */
+/* continue watching (Shahid episodes, YouTube videos) */
+.wc{width:540px;height:112px;flex:none;display:flex;align-items:center;gap:18px;padding:0 18px 0 0;border-radius:18px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:transform .12s ease-out}
+.wc .th{width:199px;height:112px;flex:none;background:#222 center/cover no-repeat}
+.wc .tx{min-width:0;flex:1;font-family:var(--f-ar)}
+.wc .t{font-size:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc .s{font-size:17px;color:var(--soft);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc.f{transform:scale(1.05);outline:4px solid #fff;outline-offset:-1px}
+body.hasCW #secApps{top:345px!important}
+body.hasCW .feed{top:885px}
+/* old */
 .cw{display:flex;gap:22px}
 .ep{width:340px;flex:none;transition:transform .12s ease-out}
 .ep .th{height:191px;border-radius:14px;position:relative;overflow:hidden;background:#1b1b22 center/cover no-repeat}
@@ -131,13 +141,13 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
     <nav class="btns" id="btns"></nav>
   </header>
 
-  <section class="sec" style="top:470px">
+  <section class="sec" style="top:470px" id="secApps">
     <div class="name" id="appName">&nbsp;</div>
     <div class="viewport"><div class="row" id="apps"></div></div>
   </section>
 
-  <section class="sec" style="top:640px" id="secCW" hidden>
-    <div class="h" id="cwTitle">CONTINUE WATCHING</div>
+  <section class="sec" style="top:665px" id="secCW" hidden>
+    <div class="h" id="cwTitle" style="margin-bottom:6px">CONTINUE WATCHING</div>
     <div class="viewport"><div class="cw row" id="cw"></div></div>
   </section>
 
@@ -296,24 +306,25 @@ function toggleHide(i){var pk=shownApps[i].pkg,h=load("hidden",[]),k=h.indexOf(p
   focus.col=Math.min(focus.col,appCount()-1);paintFocus()}
 
 /* ---------- continue watching (falls back to recently opened apps) ---------- */
-var cwItems=[],cwMode="watch";
-function renderCW(){cwItems=[];$("secCW").hidden=true;return;
-  var wn=getWatchNext(),box=$("cw");box.innerHTML="";cwItems=[];
-  if(wn&&wn.ok&&wn.items&&wn.items.length){cwMode="watch";cwItems=wn.items.slice(0,10);$("cwTitle").textContent="CONTINUE WATCHING"}
-  else{cwMode="recent";$("cwTitle").textContent="JUMP BACK IN";
-    recents().slice(0,5).forEach(function(x){var a=apps.filter(function(y){return y.pkg===x.p})[0];if(a)cwItems.push({title:a.label,sub:ago(x.t)||"Continue where you left off",pkg:a.pkg,img:a.banner,app:a})})}
-  $("secCW").hidden=!cwItems.length;
-  cwItems.forEach(function(it){
-    var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
-    var e=document.createElement("div");e.className="ep"+(cwMode==="recent"?" recent":"");
-    var th=document.createElement("div");th.className="th";if(it.img)th.style.backgroundImage='url("'+it.img+'")';else th.style.background="linear-gradient(135deg,"+((a&&a.color)||"#333")+",#111)";
-    if(cwMode==="watch"){var tg=document.createElement("span");tg.className="tag";tg.textContent=((a&&a.label)||"").toUpperCase();th.appendChild(tg);
-      if(it.progress>0){var b=document.createElement("div");b.className="bar";b.innerHTML="<span></span>";b.firstChild.style.width=Math.round(Math.min(1,it.progress)*100)+"%";th.appendChild(b)}}
-    var t=document.createElement("div");t.className="t";t.textContent=it.title;if(/[؀-ۿ]/.test(it.title))t.classList.add("ar");
-    var s=document.createElement("div");s.className="s";s.textContent=(it.sub||"")+(it.left?" · "+it.left+" min left":"");if(cwMode==="recent")s.textContent=it.sub;
-    e.appendChild(th);e.appendChild(t);e.appendChild(s);box.appendChild(e)})}
-function openCW(i){var it=cwItems[i];if(!it)return;
-  if(cwMode==="watch"){if(tvCall("openWatchNext",i)===false)tvCall("launch",it.pkg)}else{rememberOpen(it.pkg);if(tvCall("launch",it.pkg)===false)toast("Could not open "+it.title)}}
+var cwItems=[];
+var SAMPLE_WATCH=[{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
+  {pkg:"com.google.android.youtube.tv",title:"يلا تنام يلا تنام مع لولو",sub:"قناة وناسة - لولو",t:Date.now()-3*36e5,vid:""}];
+function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
+function renderCW(){
+  var box=$("cw");box.innerHTML="";
+  cwItems=getWatch().filter(function(it){return apps.some(function(a){return a.pkg===it.pkg})}).slice(0,6);
+  $("secCW").hidden=!cwItems.length;document.body.classList.toggle("hasCW",!!cwItems.length);
+  cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
+    var e=document.createElement("div");e.className="wc";
+    var th=document.createElement("div");th.className="th";if(a.banner)th.style.backgroundImage='url("'+a.banner+'")';else th.style.background=a.color||"#333";
+    var tx=document.createElement("div");tx.className="tx";tx.dir="auto";
+    var t=document.createElement("div");t.className="t";t.textContent=it.title;t.dir="auto";
+    var s=document.createElement("div");s.className="s";s.dir="auto";
+    if(it.sub){var b1=document.createElement("bdi");b1.textContent=it.sub;s.appendChild(b1);s.appendChild(document.createTextNode(" · "))}
+    var b2=document.createElement("bdi");b2.textContent=ago(it.t);s.appendChild(b2);
+    tx.appendChild(t);tx.appendChild(s);e.appendChild(th);e.appendChild(tx);box.appendChild(e)})}
+function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
+  if(tvCall("openWatch",it.pkg,it.vid||"")!==true)tvCall("launch",it.pkg)}
 
 /* ---------- trends from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
@@ -385,7 +396,7 @@ function paintFocus(){
   $("appName").textContent=r===1?(a?a.label:(c>=shownApps.length?(showHidden?"Done":"Hidden apps"):"")):($("appName").textContent);
   if(a&&a.color){clearTimeout(glowT);var col=a.color;glowT=setTimeout(function(){setGlow(col)},180)}
   /* horizontal scroll of the focused row */
-  [["apps",1,264],["cw",2,362]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
+  [["apps",1,264],["cw",2,562]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
   /* vertical scroll: bring trends into view */
   $("page").style.transform=focus.row===3?"translateY(-430px)":"translateY(0)"}
 function moveFocus(dr,dc){
@@ -513,7 +524,7 @@ loadData();loadWeather();loadNews();showFact();schedulePrayers();
 setInterval(function(){showNews(false)},12000);setInterval(loadNews,15*60000);setInterval(function(){showFact(true)},90000);setInterval(schedulePrayers,60*60000);
 setInterval(function(){renderInfo();if(sleepAt){renderBtns();paintFocus()}},10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
-setInterval(function(){if(!menuState)renderCW()},5*60000);
+setInterval(function(){if(!menuState&&focus.row!==2)renderCW()},60000);
 </script>
 </body>
 </html>

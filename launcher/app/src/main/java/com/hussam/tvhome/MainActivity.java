@@ -249,6 +249,31 @@ public class MainActivity extends Activity {
             }).start();
         }
 
+        @JavascriptInterface
+        public String watchList() {
+            return WatchStore.list(MainActivity.this);
+        }
+
+        /** Opens a watched item: a YouTube video by id, otherwise the app itself. */
+        @JavascriptInterface
+        public boolean openWatch(String pkg, String vid) {
+            try {
+                if (vid != null && !vid.isEmpty()) {
+                    Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + vid))
+                            .setPackage(pkg).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(it);
+                    return true;
+                }
+                Intent it = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+                if (it == null) it = getPackageManager().getLaunchIntentForPackage(pkg);
+                if (it == null) return false;
+                startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
         /** Sets one alarm per upcoming prayer: [{ar, en, at, time}, ...]. */
         @JavascriptInterface
         public void schedulePrayers(String json) {
@@ -271,7 +296,7 @@ public class MainActivity extends Activity {
                     else am.setWindow(AlarmManager.RTC, at, 60_000L, pi);
                 }
                 // Banner permission and exact alarms are granted once through the TV's own ADB.
-                if (Adb.ready(MainActivity.this) && ((Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(MainActivity.this))
+                if (Adb.ready(MainActivity.this) && (!Adb.extrasOn(MainActivity.this)
                         || (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms()))) {
                     new Thread(() -> Adb.grantExtras(MainActivity.this)).start();
                 }

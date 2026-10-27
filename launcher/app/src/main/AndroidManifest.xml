@@ -63,5 +63,26 @@
 
         <receiver android:name=".SleepReceiver" android:exported="false" />
         <receiver android:name=".PrayerReceiver" android:exported="false" />
+
+        <service
+            android:name=".WatchService"
+            android:exported="true"
+            android:label="TV Home: Continue watching"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/watch_a11y" />
+        </service>
+
+        <service
+            android:name=".MediaWatcher"
+            android:exported="true"
+            android:label="TV Home: Now playing"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

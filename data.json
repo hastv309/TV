@@ -1,5 +1,5 @@
 {
- "_note": "Shared by index.html (screensaver) and home.html (launcher). fixtures: [kickoff UTC, PL|CL, home EN, away EN, home AR, away AR]",
+ "_note": "Shared by index.html (screensaver) and home.html (launcher). fixtures: [kickoff UTC, PL|CL, home EN, away EN, home AR, away AR, MENA TV channel EN]",
  "trends": {
   "nf": [
    "Animals",
@@ -23,7 +23,8 @@
    "Liverpool",
    "Arsenal",
    "ليفربول",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-11-04T20:00Z",
@@ -31,7 +32,8 @@
    "Slavia Prague",
    "Arsenal",
    "سلافيا براغ",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-11-07T15:00Z",
@@ -39,7 +41,8 @@
    "Arsenal",
    "Hull City",
    "أرسنال",
-   "هل سيتي"
+   "هل سيتي",
+   "beIN SPORTS"
   ],
   [
    "2026-11-21T17:30Z",
@@ -47,7 +50,8 @@
    "Newcastle",
    "Arsenal",
    "نيوكاسل",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-11-24T20:00Z",
@@ -55,7 +59,8 @@
    "Arsenal",
    "Dortmund",
    "أرسنال",
-   "دورتموند"
+   "دورتموند",
+   "beIN SPORTS"
   ],
   [
    "2026-11-29T16:30Z",
@@ -63,7 +68,8 @@
    "Arsenal",
    "Man City",
    "أرسنال",
-   "مانشستر سيتي"
+   "مانشستر سيتي",
+   "beIN SPORTS"
   ],
   [
    "2026-12-02T20:15Z",
@@ -71,7 +77,8 @@
    "Brentford",
    "Arsenal",
    "برينتفورد",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-12-06T16:30Z",
@@ -79,7 +86,8 @@
    "Tottenham",
    "Arsenal",
    "توتنهام",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-12-09T20:00Z",
@@ -87,7 +95,8 @@
    "Arsenal",
    "Real Madrid",
    "أرسنال",
-   "ريال مدريد"
+   "ريال مدريد",
+   "beIN SPORTS"
   ],
   [
    "2026-12-13T14:00Z",
@@ -95,7 +104,8 @@
    "Arsenal",
    "Bournemouth",
    "أرسنال",
-   "بورنموث"
+   "بورنموث",
+   "beIN SPORTS"
   ],
   [
    "2026-12-20T16:30Z",
@@ -103,7 +113,8 @@
    "Arsenal",
    "Man United",
    "أرسنال",
-   "مانشستر يونايتد"
+   "مانشستر يونايتد",
+   "beIN SPORTS"
   ],
   [
    "2026-12-27T19:00Z",
@@ -111,7 +122,8 @@
    "Crystal Palace",
    "Arsenal",
    "كريستال بالاس",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2026-12-30T19:30Z",
@@ -119,7 +131,8 @@
    "Fulham",
    "Arsenal",
    "فولهام",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2027-01-20T20:00Z",
@@ -127,7 +140,8 @@
    "Real Betis",
    "Arsenal",
    "ريال بيتيس",
-   "أرسنال"
+   "أرسنال",
+   "beIN SPORTS"
   ],
   [
    "2027-01-27T20:00Z",
@@ -135,7 +149,8 @@
    "Arsenal",
    "Sabah",
    "أرسنال",
-   "صباح"
+   "صباح",
+   "beIN SPORTS"
   ]
  ]
 }

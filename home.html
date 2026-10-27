@@ -38,6 +38,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .chip svg{width:22px;height:22px}
 .chip .dot{width:10px;height:10px;border-radius:50%;background:var(--gunner)}
 .chip.match{background:rgba(239,59,63,.18);border-color:rgba(239,59,63,.45)}
+.chip.match.soon{background:var(--chip);border-color:var(--line)}
 .btns{display:flex;gap:16px}
 .ib{height:64px;min-width:64px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--chip);border:1px solid var(--line);
   transition:background .2s,color .2s,padding .2s}
@@ -45,6 +46,19 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .ib em{display:none;font-style:normal;font-size:20px;font-weight:600}
 .ib.f{padding:0 24px;background:#fbf7f0;color:#140d10}.ib.f em{display:inline}
 .ib.armed{box-shadow:inset 0 0 0 2px var(--glow)}
+
+/* news + fact strip */
+.feed{position:absolute;left:96px;right:96px;top:850px;display:flex;gap:24px;align-items:stretch;flex-direction:row-reverse}
+.fcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:20px 28px;min-width:0;
+  font-family:"IBM Plex Sans Arabic","Noto Kufi Arabic",system-ui,sans-serif}
+.fcard.news{flex:1.7}.fcard.fact{flex:1}
+.fcard .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;color:var(--faint);margin-bottom:10px}
+.fcard .k i{width:8px;height:8px;border-radius:50%;background:var(--nf)}
+.fcard.fact .k i{background:#a9cdfa}
+.fcard .k .m{margin-inline-start:auto;font-weight:400;font-size:15px}
+.fbody{transition:opacity .7s}
+.fcard .t{font-size:25px;font-weight:500;line-height:1.45;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fcard .s{font-size:16px;color:var(--faint);margin-top:6px}
 
 /* clean sweep */
 .sweep{position:fixed;top:0;bottom:0;left:0;width:520px;pointer-events:none;opacity:0;transform:translateX(-600px);
@@ -117,7 +131,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
     <nav class="btns" id="btns"></nav>
   </header>
 
-  <section class="sec" style="top:560px">
+  <section class="sec" style="top:470px">
     <div class="name" id="appName">&nbsp;</div>
     <div class="viewport"><div class="row" id="apps"></div></div>
   </section>
@@ -132,6 +146,13 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
     <div class="trends" id="trends"></div>
   </section>
 </div>
+
+<footer class="feed" id="feed">
+  <article class="fcard news" dir="rtl"><div class="k"><i></i>آخر الأخبار<span class="m" id="nwM"></span></div>
+    <div class="fbody" id="nwR"><div class="t" id="nwT">&nbsp;</div><div class="s" id="nwS"></div></div></article>
+  <article class="fcard fact" dir="rtl"><div class="k"><i></i>هل تعلم؟</div>
+    <div class="fbody" id="fcR"><div class="t" id="fcT">&nbsp;</div></div></article>
+</footer>
 
 <div class="menu" id="menu" hidden><div class="box"><h3 id="mTitle"></h3><div id="mOpts"></div></div></div>
 <div class="toast" id="toast" hidden></div>
@@ -329,8 +350,11 @@ function renderInfo(){
   $("date").textContent=EN_WD[p.wd]+" "+p.d+" "+EN_MO[p.m-1]+(h?" · "+h.d+" "+HJ[h.m-1]+" "+h.y+" AH":"");
   var np=nextPrayer(now);if(np){$("pName").textContent=np.name;$("pWhen").textContent=ampm(np.h,np.m)+" · "+inMin(np.at-now)}
   /* match chip: only on match day (Riyadh date) */
-  var mt=null;(DATA.fixtures||[]).forEach(function(f){var at=Date.parse(f[0]);if(!mt&&at+2*36e5>now&&dayIndex(at)===dayIndex(now))mt={at:at,home:f[2],away:f[3],cl:f[1]==="CL"}});
-  if(mt){var k=rParts(mt.at);$("mText").textContent=(now>=mt.at?"LIVE · ":"Matchday · ")+mt.home+" vs "+mt.away+" · "+hhmm(k.h,k.mi);$("cMatch").hidden=false}else $("cMatch").hidden=true}
+  var mt=null,today=dayIndex(now);(DATA.fixtures||[]).forEach(function(f){var at=Date.parse(f[0]),di=dayIndex(at);
+    if(!mt&&at+2*36e5>now&&(di===today||di===today+1))mt={at:at,home:f[2],away:f[3],tv:f[6]||"",soon:di===today+1}});
+  if(mt){var k=rParts(mt.at),tag=now>=mt.at?"LIVE":mt.soon?"Tomorrow":"Today";
+    $("mText").textContent=tag+" · "+mt.home+" vs "+mt.away+" · "+hhmm(k.h,k.mi)+(mt.tv&&!mt.soon?" · "+mt.tv:"");
+    $("cMatch").classList.toggle("soon",mt.soon);$("cMatch").hidden=false}else $("cMatch").hidden=true}
 function wxIcon(c,day){if(c===0||c===1)return svg(day?ICONS.sun:ICONS.moon,' style="color:var(--glow)"');if(c>=51&&c<=82||c>=95)return svg(ICONS.rain);return svg(ICONS.cloud)}
 function wxText(c){if(c===0)return"Clear";if(c<=2)return"Partly cloudy";if(c===3)return"Cloudy";if(c===45||c===48)return"Fog";if(c>=51&&c<=67)return"Rain";if(c>=80&&c<=82)return"Showers";if(c>=95)return"Storm";return""}
 function loadWeather(){
@@ -399,7 +423,7 @@ document.addEventListener("keyup",function(e){
 function goHome(){if(menuState){closeMenu();return}focus={row:1,col:0};paintFocus()}
 /* called by the Android app */
 window.onHome=goHome;window.onBack=function(){if(menuState)closeMenu();else goHome()};
-window.onResumeHome=function(){renderApps();renderCW();paintFocus();renderInfo()};
+window.onResumeHome=function(){renderApps();renderCW();paintFocus();renderInfo();schedulePrayers()};
 window.onSleepCancelled=function(){sleepAt=0;renderBtns();paintFocus()};
 
 /* ---------- interface sounds: short soft clicks made with Web Audio ---------- */
@@ -426,10 +450,65 @@ window.onCleaned=function(mb,full){
 var toastT=null;function toast(t){var e=$("toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){e.hidden=true},3200)}
 var $=function(id){return document.getElementById(id)};
 
+/* ---------- news (news.json) and fact of the day ---------- */
+var FACTS=[
+ "قلب الإنسان ينبض قرابة 100 ألف مرة في اليوم.",
+ "العسل لا يفسد إذا حُفظ جيدًا، وقد عُثر على عسل صالح للأكل في مقابر مصرية عمرها آلاف السنين.",
+ "يحتاج ضوء الشمس نحو 8 دقائق و20 ثانية ليصل إلى الأرض.",
+ "الربع الخالي أكبر صحراء رملية متصلة في العالم.",
+ "للأخطبوط ثلاثة قلوب ودم لونه أزرق.",
+ "توصي منظمة الصحة العالمية البالغين بـ150 دقيقة على الأقل من النشاط البدني المعتدل أسبوعيًا.",
+ "يشكّل الماء نحو 60٪ من وزن جسم الإنسان البالغ.",
+ "يحتوي جسم الإنسان البالغ على 206 عظمة.",
+ "يستهلك الدماغ نحو 20٪ من طاقة الجسم مع أن وزنه قرابة 2٪ فقط.",
+ "يبتعد القمر عن الأرض بنحو 3.8 سم كل سنة.",
+ "اليوم على كوكب الزهرة أطول من سنته.",
+ "مينا الأسنان أقسى مادة في جسم الإنسان.",
+ "حرارة البرق أعلى من حرارة سطح الشمس بنحو خمس مرات.",
+ "المحيط الهادئ وحده أكبر من مساحة اليابسة كلها على الأرض.",
+ "الخفافيش هي الثدييات الوحيدة القادرة على الطيران الحقيقي.",
+ "تتحمّل الإبل فقدان ربع وزنها تقريبًا من الماء دون أن تتأذى.",
+ "عين النعامة أكبر من دماغها.",
+ "ضوء الشاشات قبل النوم يقلل إفراز الميلاتونين ويؤخر النوم.",
+ "يبلغ ارتفاع قمة إيفرست 8,849 مترًا فوق سطح البحر.",
+ "يغطي الماء نحو 71٪ من سطح الأرض.",
+ "يرمش الإنسان في المتوسط من 15 إلى 20 مرة في الدقيقة.",
+ "بدأ إنتاج النفط تجاريًا في المملكة عام 1938 من بئر الدمام رقم 7 المعروفة ببئر الخير.",
+ "أُعلن توحيد المملكة العربية السعودية باسمها الحالي عام 1932.",
+ "تُعرف العربية بلغة الضاد لاختصاصها بهذا الصوت.",
+ "الشوكولاتة سامة للكلاب والقطط بسبب مادة الثيوبرومين.",
+ "يزيد طول برج إيفل في الصيف حتى 15 سم تقريبًا بسبب تمدد الحديد بالحرارة.",
+ "الأرض ليست كرة تامة، فهي منتفخة قليلًا عند خط الاستواء.",
+ "المشي الخفيف بعد الوجبة يساعد على ضبط ارتفاع سكر الدم.",
+ "المملكة من أكبر منتجي التمور في العالم.",
+ "لا يستطيع الفيل القفز."];
+var news={items:[]},nwIdx=0;
+function loadNews(){
+  var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
+  fetch(base+"news.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})
+  .then(function(j){if(j&&j.items&&j.items.length){news=j;nwIdx=0;showNews(true)}}).catch(function(){})}
+function showNews(now){
+  var items=news.items||[];if(!items.length){$("feed").querySelector(".news").hidden=true;return}
+  $("feed").querySelector(".news").hidden=false;
+  var k=nwIdx%items.length,x=items[k];nwIdx++;
+  var paint=function(){$("nwT").textContent=x.t;$("nwS").textContent=x.s||"";$("nwM").textContent=(k+1)+"/"+items.length;$("nwR").style.opacity=1};
+  if(now){paint();return}$("nwR").style.opacity=0;setTimeout(paint,700)}
+function showFact(){var p=rParts(Date.now()),d=Math.floor(Date.UTC(p.y,p.m-1,p.d)/DAY);$("fcT").textContent=FACTS[(d*7+3)%FACTS.length]}
+
+/* ---------- prayer alerts: hand the next prayer times to the app, which shows a banner + voice ---------- */
+var PN_AR={fajr:"الفجر",dhuhr:"الظهر",asr:"العصر",maghrib:"المغرب",isha:"العشاء"};
+function schedulePrayers(){
+  if(!HAS_TV)return;var now=Date.now(),out=[],ks=["fajr","dhuhr","asr","maghrib","isha"];
+  for(var d=0;d<2;d++){var day=now+d*DAY,p=rParts(day),h=hijriParts(day),t=prayerTimes(p.y,p.m,p.d,!!(h&&h.m===9)),b=rMidnight(p.y,p.m,p.d);
+    ks.forEach(function(k){var at=b+Math.round(t[k]*60)*6e4;if(at>now){var fri=k==="dhuhr"&&p.wd===5,hm=rParts(at);
+      out.push({ar:fri?"الجمعة":PN_AR[k],en:fri?"Jumu'ah":PN[k],at:at,time:ampm(hm.h,hm.mi)})}})}
+  tvCall("schedulePrayers",JSON.stringify(out.slice(0,8)))}
+
 /* ---------- start ---------- */
 renderBtns();renderApps();renderCW();renderTrends();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
-loadData();loadWeather();
+loadData();loadWeather();loadNews();showFact();schedulePrayers();
+setInterval(function(){showNews(false)},12000);setInterval(loadNews,60*60000);setInterval(function(){showFact();schedulePrayers()},60*60000);
 setInterval(function(){renderInfo();if(sleepAt){renderBtns();paintFocus()}},10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
 setInterval(function(){if(!menuState)renderCW()},5*60000);

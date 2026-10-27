@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Recently watched items: {pkg, title, sub, vid, t}, newest first. One entry per show/video. */
+/** Recently watched items: {pkg, title, sub, vid, t}, newest first. One entry per app (the latest thing watched there). */
 final class WatchStore {
     private WatchStore() { }
 
@@ -22,11 +22,15 @@ final class WatchStore {
             out.put(cur);
             for (int i = 0; i < old.length() && out.length() < 12; i++) {
                 JSONObject o = old.getJSONObject(i);
-                if (o.optString("pkg").equals(pkg) && o.optString("title").equals(title)) continue;
+                if (o.optString("pkg").equals(pkg)) continue; // keep only the latest item per app
                 out.put(o);
             }
             p.edit().putString("watch", out.toString()).apply();
         } catch (Exception ignored) { }
+    }
+
+    static void clear(Context c) {
+        c.getSharedPreferences("home", Context.MODE_PRIVATE).edit().remove("watch").apply();
     }
 
     static String list(Context c) {

@@ -42,10 +42,18 @@ public class MediaWatcher extends NotificationListenerService {
             watched.add(mc);
             mc.registerCallback(new MediaController.Callback() {
                 @Override
-                public void onMetadataChanged(MediaMetadata md) { save(pkg, md); }
+                public void onMetadataChanged(MediaMetadata md) { if (playing(mc)) save(pkg, md); }
+
+                @Override
+                public void onPlaybackStateChanged(android.media.session.PlaybackState st) { if (playing(mc)) save(pkg, mc.getMetadata()); }
             });
-            save(pkg, mc.getMetadata());
+            if (playing(mc)) save(pkg, mc.getMetadata());
         }
+    }
+
+    private static boolean playing(MediaController mc) {
+        android.media.session.PlaybackState st = mc.getPlaybackState();
+        return st != null && st.getState() == android.media.session.PlaybackState.STATE_PLAYING;
     }
 
     private void save(String pkg, MediaMetadata md) {

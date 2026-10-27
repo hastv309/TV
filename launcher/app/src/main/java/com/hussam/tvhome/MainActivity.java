@@ -249,6 +249,20 @@ public class MainActivity extends Activity {
             }).start();
         }
 
+        /** Shows the prayer banner and voice after a delay, so you can open another app to see it on top. */
+        @JavascriptInterface
+        public void testPrayer(int delaySec) {
+            Context c = getApplicationContext();
+            android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
+            h.postDelayed(() -> PrayerReceiver.show(c, "المغرب", "Maghrib", "5:20 PM"), delaySec * 1000L);
+            h.postDelayed(() -> PrayerReceiver.speak(c, "حان الآن موعد صلاة المغرب"), delaySec * 1000L + 700);
+        }
+
+        @JavascriptInterface
+        public void clearWatch() {
+            WatchStore.clear(MainActivity.this);
+        }
+
         @JavascriptInterface
         public String watchList() {
             return WatchStore.list(MainActivity.this);

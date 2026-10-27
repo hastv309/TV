@@ -312,7 +312,7 @@ var SAMPLE_WATCH=[{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"ال�
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
-  cwItems=getWatch().filter(function(it){return apps.some(function(a){return a.pkg===it.pkg})}).slice(0,6);
+  var seenPkg={};cwItems=getWatch().filter(function(it){if(seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,2);
   $("secCW").hidden=!cwItems.length;document.body.classList.toggle("hasCW",!!cwItems.length);
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
     var e=document.createElement("div");e.className="wc";
@@ -405,7 +405,11 @@ function moveFocus(dr,dc){
   paintFocus()}
 function activate(long){
   var r=focus.row,c=focus.col;
-  if(r===0){if(long&&BTNS[c].id==="settings"){openMenu("Home screen",[[SOUND?"Turn sounds off":"Turn sounds on",function(){SOUND=!SOUND;save("sound",SOUND);toast(SOUND?"Sounds on":"Sounds off")}]]);return}doBtn(BTNS[c].id)}
+  if(r===0){if(long&&BTNS[c].id==="settings"){var PR=load("prayerOn",true);openMenu("Home screen",[
+      ["Test prayer alert (in 10 s)",function(){tvCall("testPrayer",10);toast("Alert in 10 seconds · open any app to see it on top")}],
+      [PR?"Turn prayer alerts off":"Turn prayer alerts on",function(){save("prayerOn",!PR);schedulePrayers();toast(!PR?"Prayer alerts on":"Prayer alerts off")}],
+      ["Clear continue watching",function(){tvCall("clearWatch");renderCW();paintFocus();toast("Cleared")}],
+      [SOUND?"Turn sounds off":"Turn sounds on",function(){SOUND=!SOUND;save("sound",SOUND);toast(SOUND?"Sounds on":"Sounds off")}]]);return}doBtn(BTNS[c].id)}
   else if(r===1){if(long&&c<shownApps.length){var a=shownApps[c],hid=load("hidden",[]).indexOf(a.pkg)>=0;
       openMenu(a.label,[["Move left",function(){moveApp(c,-1)}],["Move right",function(){moveApp(c,1)}],[hid?"Show on home":"Hide from home",function(){toggleHide(c)}]])}
     else launchApp(c)}
@@ -515,7 +519,7 @@ function schedulePrayers(){
   for(var d=0;d<2;d++){var day=now+d*DAY,p=rParts(day),h=hijriParts(day),t=prayerTimes(p.y,p.m,p.d,!!(h&&h.m===9)),b=rMidnight(p.y,p.m,p.d);
     ks.forEach(function(k){var at=b+Math.round(t[k]*60)*6e4;if(at>now){var fri=k==="dhuhr"&&p.wd===5,hm=rParts(at);
       out.push({ar:fri?"الجمعة":PN_AR[k],en:fri?"Jumu'ah":PN[k],at:at,time:ampm(hm.h,hm.mi)})}})}
-  tvCall("schedulePrayers",JSON.stringify(out.slice(0,8)))}
+  tvCall("schedulePrayers",JSON.stringify(load("prayerOn",true)?out.slice(0,8):[]))}
 
 /* ---------- start ---------- */
 renderBtns();renderApps();renderCW();renderTrends();renderInfo();paintFocus();

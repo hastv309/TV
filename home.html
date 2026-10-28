@@ -111,8 +111,16 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .wc .t{font-size:20px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wc .s{font-size:15px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc.f{transform:scale(1.05);outline:4px solid #fff;outline-offset:-1px}
-body.hasCW #secApps{top:345px!important}
-body.hasCW .feed{top:885px}
+/* sticky note: where you stopped (auto) */
+.note{position:absolute;right:96px;top:160px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(255,226,140,.09);
+  border:1px solid rgba(255,226,140,.32);font-family:var(--f-ar);direction:rtl}
+.note .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:#ffe28c;margin:0 8px 6px}
+.nt{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:14px;transition:background .15s}
+.nt .n{text-align:right;font-size:22px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nt .e{font-size:18px;color:#ffe28c;font-weight:700;white-space:nowrap}
+.nt .ap{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;width:74px;text-align:left;direction:ltr}
+.nt .ag{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;direction:ltr}
+.nt.f{background:#fbf7f0;color:#140d10}.nt.f .e{color:#9a5b00}.nt.f .ap,.nt.f .ag{color:#6b5a50}
 /* old */
 .cw{display:flex;gap:22px}
 .ep{width:340px;flex:none;transition:transform .12s ease-out}
@@ -170,10 +178,10 @@ body.hasCW .feed{top:885px}
     <div class="viewport"><div class="row" id="apps"></div></div>
   </section>
 
-  <section class="sec" style="top:665px" id="secCW" hidden>
-    <div class="h" id="cwTitle" style="margin-bottom:6px">CONTINUE WATCHING</div>
-    <div class="viewport"><div class="cw row" id="cw"></div></div>
-  </section>
+  <aside class="note" id="secCW" hidden>
+    <div class="k"><span>📝</span>وين وقفت؟</div>
+    <div id="cw"></div>
+  </aside>
 
   <section class="sec" style="top:1010px" id="secTr" hidden>
     <div class="h">TRENDING THIS WEEK</div>
@@ -340,21 +348,20 @@ var cwItems=[];
 var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7",t:Date.now()-5*6e4},{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
   {pkg:"com.google.android.youtube.tv",title:"يلا تنام يلا تنام مع لولو",sub:"قناة وناسة - لولو",t:Date.now()-3*36e5,vid:""}];
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
+function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").replace(/الجزء\s*(\d+)/,"ج$1").replace(/الحلقة\s*(\d+)/,"ح$1")}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
-  /* only these apps, one card each (latest show), up to 4 */
+  /* only these apps, one line each (latest show), up to 4 */
   var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax","net.mbc.shahidTV","com.netflix.ninja"];
   var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,4);
-  $("secCW").hidden=!cwItems.length;document.body.classList.toggle("hasCW",!!cwItems.length);
+  $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
-    var e=document.createElement("div");e.className="wc";
-    var th=document.createElement("div");th.className="th";if(a.banner)th.style.backgroundImage='url("'+a.banner+'")';else th.style.background=a.color||"#333";
-    var tx=document.createElement("div");tx.className="tx";tx.dir="auto";
-    var t=document.createElement("div");t.className="t";t.textContent=it.title;t.dir="auto";
-    var s=document.createElement("div");s.className="s";s.dir="auto";
-    if(it.sub){var b1=document.createElement("bdi");b1.textContent=it.sub;s.appendChild(b1);s.appendChild(document.createTextNode(" · "))}
-    var b2=document.createElement("bdi");b2.textContent=ago(it.t);s.appendChild(b2);
-    tx.appendChild(t);tx.appendChild(s);e.appendChild(th);e.appendChild(tx);box.appendChild(e)})}
+    var e=document.createElement("div");e.className="nt";
+    var n=document.createElement("span");n.className="n";n.textContent=it.title;n.dir="auto";
+    var ep=document.createElement("span");ep.className="e";ep.textContent=shortSub(it.sub);
+    var ap=document.createElement("span");ap.className="ap";ap.textContent=a.label;
+    var ag=document.createElement("span");ag.className="ag";ag.textContent=ago(it.t);
+    e.appendChild(n);e.appendChild(ep);e.appendChild(ag);e.appendChild(ap);box.appendChild(e)})}
 function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
   if(tvCall("openWatch",it.pkg,it.vid||"")!==true)tvCall("launch",it.pkg)}
 
@@ -469,11 +476,17 @@ function paintFocus(){
   $("appName").textContent=r===1?(a?a.label:(c>=shownApps.length?(showHidden?"Done":"Hidden apps"):"")):($("appName").textContent);
   if(a&&a.color){clearTimeout(glowT);var col=a.color;glowT=setTimeout(function(){setGlow(col)},180)}
   /* horizontal scroll of the focused row */
-  [["apps",1,264],["cw",2,432]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
+  [["apps",1,264]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
   /* vertical scroll: the movies page sits below the home screen */
   $("page").style.transform=focus.row>=3?"translateY(-1080px)":"translateY(0)"}
+/* vertical order on screen: buttons(0) → note(2, a vertical list) → apps(1) → picks(3) → top lists(4) */
+var ORDER=[0,2,1,3,4];
 function moveFocus(dr,dc){
-  if(dr){var r=focus.row;do{r+=dr}while(r>=0&&r<=4&&!rowLen(r));if(r<0||r>4)return;focus.row=r;focus.col=Math.min(focus.col,rowLen(r)-1)}
+  var r=focus.row,nn=rowLen(2);
+  if(r===2&&dr){var c=focus.col+dr;if(c>=0&&c<nn){focus.col=c;paintFocus();return}}
+  if(r===2&&dc)return;
+  if(dr){var i=ORDER.indexOf(r);do{i+=dr}while(i>=0&&i<ORDER.length&&!rowLen(ORDER[i]));if(i<0||i>=ORDER.length)return;
+    var nr=ORDER[i];focus.row=nr;focus.col=nr===2?(dr>0?0:nn-1):Math.min(nr===1&&r===2?0:focus.col,rowLen(nr)-1)}
   else{focus.col=Math.max(0,Math.min(rowLen(focus.row)-1,focus.col+dc))}
   paintFocus()}
 function activate(long){

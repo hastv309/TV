@@ -112,15 +112,16 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .wc .s{font-size:15px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc.f{transform:scale(1.05);outline:4px solid #fff;outline-offset:-1px}
 /* sticky note: where you stopped (auto) */
-.note{position:absolute;right:96px;top:160px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(255,226,140,.09);
-  border:1px solid rgba(255,226,140,.32);font-family:var(--f-ar);direction:rtl}
-.note .k{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;color:#ffe28c;margin:0 8px 6px}
-.nt{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:14px;transition:background .15s}
+.note{position:absolute;right:96px;top:160px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.55);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);font-family:var(--f-ar);direction:rtl}
+.note .k{font-family:var(--f-ui);font-size:15px;font-weight:700;letter-spacing:.16em;color:var(--soft);margin:0 8px 6px;direction:ltr;text-align:right}
+.nt{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 12px;padding-right:24px;border-radius:14px;transition:background .15s;position:relative}
+.nt:before{content:"";position:absolute;right:8px;top:10px;bottom:10px;width:5px;border-radius:3px;background:var(--c,#888)}
 .nt .n{text-align:right;font-size:22px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nt .e{font-size:18px;color:#ffe28c;font-weight:700;white-space:nowrap}
+.nt .e{font-size:16px;color:#fff;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.1);padding:3px 12px;border-radius:99px}
 .nt .ap{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;width:74px;text-align:left;direction:ltr}
 .nt .ag{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;direction:ltr}
-.nt.f{background:#fbf7f0;color:#140d10}.nt.f .e{color:#9a5b00}.nt.f .ap,.nt.f .ag{color:#6b5a50}
+.nt.f{background:rgba(255,255,255,.95);color:#140d10}.nt.f .e{color:#140d10;background:rgba(0,0,0,.08)}.nt.f .ap,.nt.f .ag{color:#6b5a50}
 /* old */
 .cw{display:flex;gap:22px}
 .ep{width:340px;flex:none;transition:transform .12s ease-out}
@@ -179,7 +180,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
   </section>
 
   <aside class="note" id="secCW" hidden>
-    <div class="k"><span>📝</span>وين وقفت؟</div>
+    <div class="k">CONTINUE</div>
     <div id="cw"></div>
   </aside>
 
@@ -356,7 +357,7 @@ function renderCW(){
   var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,4);
   $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
-    var e=document.createElement("div");e.className="nt";
+    var e=document.createElement("div");e.className="nt";e.style.setProperty("--c",a.color||"#888");
     var n=document.createElement("span");n.className="n";n.textContent=it.title;n.dir="auto";
     var ep=document.createElement("span");ep.className="e";ep.textContent=shortSub(it.sub);
     var ap=document.createElement("span");ap.className="ap";ap.textContent=a.label;

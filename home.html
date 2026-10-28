@@ -60,6 +60,30 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .fcard .t{font-size:25px;font-weight:500;line-height:1.45;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .fcard .s{font-size:16px;color:var(--faint);margin-top:6px}
 
+/* movies page (below the home screen) */
+.movies{position:absolute;left:96px;right:96px;top:1210px}
+.movies .h small{letter-spacing:.04em;font-weight:400;color:var(--faint);font-size:17px;font-family:var(--f-ar)}
+.picks{display:flex;gap:28px}
+.pk{width:556px;height:340px;border-radius:24px;position:relative;overflow:hidden;flex:none;background:#1a1620 center/cover no-repeat;transition:transform .12s ease-out}
+.pk:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,6,10,.94) 32%,rgba(8,6,10,.15) 80%)}
+.pk .in{position:absolute;left:30px;top:28px;bottom:26px;width:340px;display:flex;flex-direction:column;z-index:1}
+.pk .tag{align-self:flex-start;font-size:15px;font-weight:700;letter-spacing:.1em;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16)}
+.pk .t{text-align:left;font-size:38px;font-weight:700;margin-top:16px;line-height:1.15;font-family:var(--f-ui),var(--f-ar)}
+.pk .why{text-align:left;font-family:var(--f-ar);font-size:18px;color:var(--soft);margin-top:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pk .meta{margin-top:auto;font-size:17px;color:var(--soft);display:flex;gap:10px;align-items:center}
+.pk.f{transform:scale(1.03);outline:4px solid #fff;outline-offset:-1px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tops{display:flex;gap:28px;margin-top:64px}
+.tp{flex:1 1 0;min-width:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:24px 28px}
+.tp .hd{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:.14em;margin-bottom:16px}
+.items{display:flex;gap:12px}
+.it{flex:1 1 0;min-width:0;display:flex;gap:10px;align-items:center;border-radius:14px;padding:6px;transition:transform .12s}
+.it .num{font-size:58px;font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.55);width:30px;flex:none}
+.it .ps{width:86px;height:128px;border-radius:12px;flex:none;background:#222 center/cover no-repeat}
+.it .n{overflow-wrap:break-word;font-size:19px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.it .g{font-size:15px;color:var(--faint);margin-top:4px}
+.it.f{outline:3px solid #fff;transform:scale(1.04)}
+
 /* clean sweep */
 .sweep{position:fixed;top:0;bottom:0;left:0;width:520px;pointer-events:none;opacity:0;transform:translateX(-600px);
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.07) 35%,rgba(255,255,255,.22) 50%,rgba(255,255,255,.07) 65%,transparent);z-index:50}
@@ -155,7 +179,6 @@ body.hasCW .feed{top:885px}
     <div class="h">TRENDING THIS WEEK</div>
     <div class="trends" id="trends"></div>
   </section>
-</div>
 
 <footer class="feed" id="feed">
   <article class="fcard news" dir="rtl"><div class="k"><i></i>آخر الأخبار<span class="m" id="nwM"></span></div>
@@ -163,6 +186,13 @@ body.hasCW .feed{top:885px}
   <article class="fcard fact" dir="rtl"><div class="k"><i></i>هل تعلم؟</div>
     <div class="fbody" id="fcR"><div class="t" id="fcT">&nbsp;</div></div></article>
 </footer>
+
+<section class="movies" id="movies">
+  <div class="h">WEEKEND PICKS <small id="pkNote">· اختيارات الويكند، تتجدد كل خميس</small></div>
+  <div class="picks" id="picks"></div>
+  <div class="tops" id="tops"></div>
+</section>
+</div>
 
 <div class="menu" id="menu" hidden><div class="box"><h3 id="mTitle"></h3><div id="mOpts"></div></div></div>
 <div class="toast" id="toast" hidden></div>
@@ -328,6 +358,47 @@ function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
 
 /* ---------- trends from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
+/* ---------- movies page: weekend picks + top 3 on each platform (data.json → movies) ---------- */
+var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"}};
+function bgUrl(el,u){if(u)el.style.backgroundImage='url("'+u.replace(/"/g,"")+'")'}
+/* posters: data.json may carry "img"; otherwise ask Apple's public movie search (JSONP, no key) once and cache it */
+var posterCache=load("posters",{}),jsonpN=0;
+function findPoster(title,cb){
+  if(!title)return;var k=title.toLowerCase();if(posterCache[k]!==undefined){if(posterCache[k])cb(posterCache[k]);return}
+  var name="__pc"+(jsonpN++),sc=document.createElement("script"),done=false;
+  window[name]=function(j){done=true;var r=j&&j.results&&j.results[0],u=r&&r.artworkUrl100?r.artworkUrl100.replace(/\/\d+x\d+bb\./,"/600x900bb."):"";
+    posterCache[k]=u;save("posters",posterCache);if(u)cb(u);delete window[name];sc.remove()};
+  sc.onerror=function(){delete window[name];sc.remove()};
+  sc.src="https://itunes.apple.com/search?media=movie&entity=movie&limit=1&country=sa&term="+encodeURIComponent(title)+"&callback="+name;
+  document.head.appendChild(sc)}
+function poster(el,m){if(m.img){bgUrl(el,m.img);return}findPoster(m.q||m.t,function(u){bgUrl(el,u)})}
+function renderMovies(){
+  var M=DATA.movies||{},box=$("picks");box.innerHTML="";pickItems=(M.picks||[]).slice(0,3);
+  pickItems.forEach(function(m){var p=PLAT[m.p]||PLAT.nf,e=document.createElement("div");e.className="pk";
+    e.style.background="linear-gradient(135deg,"+p.c+",#120e16 70%)";e.style.backgroundSize="cover";e.style.backgroundPosition="right center";poster(e,m);
+    var i=document.createElement("div");i.className="in";
+    var tg=document.createElement("span");tg.className="tag";tg.textContent=(m.g||"")+(m.ar?" · ARABIC":"");
+    var t=document.createElement("div");t.className="t";t.textContent=m.t;t.dir="auto";
+    var w=document.createElement("div");w.className="why";w.textContent=m.why||"";w.dir="rtl";
+    var me=document.createElement("div");me.className="meta";me.innerHTML='<i class="dot"></i><span></span>';me.firstChild.style.background=p.c;
+    me.lastChild.textContent=[p.name,m.y,m.rt].filter(Boolean).join(" · ");
+    i.appendChild(tg);i.appendChild(t);i.appendChild(w);i.appendChild(me);e.appendChild(i);box.appendChild(e)});
+  $("movies").querySelector(".h").hidden=!pickItems.length;
+  var tops=$("tops");tops.innerHTML="";topItems=[];
+  [["nf","NETFLIX · TOP 3 IN KSA"],["sh","SHAHID · TOP 3"]].forEach(function(k){
+    var list=(M[k[0]]&&M[k[0]].length)?M[k[0]]:((DATA.trends&&DATA.trends[k[0]])||[]).map(function(x){return{t:x}});
+    list=list.slice(0,3);if(!list.length)return;var p=PLAT[k[0]];
+    var panel=document.createElement("div");panel.className="tp";
+    panel.innerHTML='<div class="hd"><i class="dot"></i><span></span></div><div class="items"></div>';
+    panel.querySelector(".dot").style.background=p.c;panel.querySelector(".hd span").textContent=k[1];
+    list.forEach(function(m,n){var it=document.createElement("div");it.className="it";
+      it.innerHTML='<span class="num"></span><div class="ps"></div><div style="min-width:0"><div class="n"></div><div class="g"></div></div>';
+      it.querySelector(".num").textContent=n+1;var ps=it.querySelector(".ps");ps.style.background="linear-gradient(160deg,"+p.c+",#120e16)";ps.style.backgroundSize="cover";poster(ps,m);
+      it.querySelector(".n").textContent=m.t;it.querySelector(".n").dir="auto";it.querySelector(".g").textContent=m.g||"Film";
+      panel.querySelector(".items").appendChild(it);topItems.push({t:m.t,p:k[0]})});
+    tops.appendChild(panel)})}
+function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT.nf;rememberOpen(p.pkg);if(tvCall("launch",p.pkg)===false)toast("Could not open "+p.name)}
+
 function renderTrends(){$("secTr").hidden=true;return;
   var box=$("trends");box.innerHTML="";
   [["nf","NETFLIX","TOP 5 · KSA","var(--nf)"],["sh","SHAHID","TOP 5","var(--sh)"]].forEach(function(p){
@@ -341,7 +412,7 @@ function renderTrends(){$("secTr").hidden=true;return;
   $("secTr").hidden=!box.children.length}
 function loadData(){
   var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
-  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){DATA=d;renderTrends();renderInfo();paintFocus()}).catch(function(){})}
+  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){DATA=d;renderTrends();renderMovies();renderInfo();paintFocus()}).catch(function(){})}
 
 /* ---------- clock, prayer, weather, match ---------- */
 var EN_WD=["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
@@ -385,11 +456,11 @@ function shade(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)*f|0,g=(n>>8&255)
 /* ---------- focus and remote control ---------- */
 /* rows: 0 buttons, 1 apps, 2 continue watching, 3 trends */
 var focus={row:1,col:0},menuState=null,glowT=null,lastMove=0;
-function rowLen(r){if(r===0)return BTNS.length;if(r===1)return appCount();if(r===2)return $("secCW").hidden?0:cwItems.length;if(r===3)return $("secTr").hidden?0:$("trends").children.length;return 0}
+function rowLen(r){if(r===0)return BTNS.length;if(r===1)return appCount();if(r===2)return $("secCW").hidden?0:cwItems.length;if(r===3)return $("picks").children.length;if(r===4)return topItems.length;return 0}
 function paintFocus(){
   document.querySelectorAll(".f").forEach(function(e){if(!e.closest(".menu"))e.classList.remove("f")});
   var r=focus.row,c=focus.col,el=null;
-  if(r===0)el=$("btns").children[c];if(r===1)el=$("apps").children[c];if(r===2)el=$("cw").children[c];if(r===3)el=$("trends").children[c];
+  if(r===0)el=$("btns").children[c];if(r===1)el=$("apps").children[c];if(r===2)el=$("cw").children[c];if(r===3)el=$("picks").children[c];if(r===4)el=$("tops").querySelectorAll(".it")[c];
   if(el)el.classList.add("f");
   /* name + glow follow the focused app / item */
   var a=null;if(r===1)a=shownApps[c];if(r===2&&cwItems[c])a=apps.filter(function(x){return x.pkg===cwItems[c].pkg})[0];
@@ -397,10 +468,10 @@ function paintFocus(){
   if(a&&a.color){clearTimeout(glowT);var col=a.color;glowT=setTimeout(function(){setGlow(col)},180)}
   /* horizontal scroll of the focused row */
   [["apps",1,264],["cw",2,562]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
-  /* vertical scroll: bring trends into view */
-  $("page").style.transform=focus.row===3?"translateY(-430px)":"translateY(0)"}
+  /* vertical scroll: the movies page sits below the home screen */
+  $("page").style.transform=focus.row>=3?"translateY(-1080px)":"translateY(0)"}
 function moveFocus(dr,dc){
-  if(dr){var r=focus.row;do{r+=dr}while(r>=0&&r<=3&&!rowLen(r));if(r<0||r>3)return;focus.row=r;focus.col=Math.min(focus.col,rowLen(r)-1)}
+  if(dr){var r=focus.row;do{r+=dr}while(r>=0&&r<=4&&!rowLen(r));if(r<0||r>4)return;focus.row=r;focus.col=Math.min(focus.col,rowLen(r)-1)}
   else{focus.col=Math.max(0,Math.min(rowLen(focus.row)-1,focus.col+dc))}
   paintFocus()}
 function activate(long){
@@ -413,7 +484,9 @@ function activate(long){
   else if(r===1){if(long&&c<shownApps.length){var a=shownApps[c],hid=load("hidden",[]).indexOf(a.pkg)>=0;
       openMenu(a.label,[["Move left",function(){moveApp(c,-1)}],["Move right",function(){moveApp(c,1)}],[hid?"Show on home":"Hide from home",function(){toggleHide(c)}]])}
     else launchApp(c)}
-  else if(r===2)openCW(c)}
+  else if(r===2)openCW(c);
+  else if(r===3)openMovie(pickItems[c]);
+  else if(r===4)openMovie(topItems[c])}
 function openMenu(title,opts){menuState={opts:opts,i:0};$("mTitle").textContent=title;var b=$("mOpts");b.innerHTML="";
   opts.forEach(function(o,i){var d=document.createElement("div");d.className="opt"+(i?"":" f");d.textContent=o[0];b.appendChild(d)});$("menu").hidden=false}
 function closeMenu(){menuState=null;$("menu").hidden=true}
@@ -522,7 +595,7 @@ function schedulePrayers(){
   tvCall("schedulePrayers",JSON.stringify(load("prayerOn",true)?out.slice(0,8):[]))}
 
 /* ---------- start ---------- */
-renderBtns();renderApps();renderCW();renderTrends();renderInfo();paintFocus();
+renderBtns();renderApps();renderCW();renderTrends();renderMovies();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
 loadData();loadWeather();loadNews();showFact();schedulePrayers();
 setInterval(function(){showNews(false)},12000);setInterval(loadNews,15*60000);setInterval(function(){showFact(true)},90000);setInterval(schedulePrayers,60*60000);

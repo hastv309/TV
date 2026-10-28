@@ -42,7 +42,7 @@ public class PrayerReceiver extends BroadcastReceiver {
         Handler h = new Handler(Looper.getMainLooper());
         h.post(() -> show(c, ar, en, time));
         h.postDelayed(() -> speak(c, "حان الآن موعد صلاة " + ar), 700);
-        h.postDelayed(pr::finish, 9000);
+        h.postDelayed(pr::finish, 22000);
     }
 
     static void show(Context c, String ar, String en, String time) {
@@ -91,7 +91,7 @@ public class PrayerReceiver extends BroadcastReceiver {
         new Handler(Looper.getMainLooper()).postDelayed(() ->
                 card.animate().alpha(0f).translationY(-120 * dp).setDuration(450).withEndAction(() -> {
                     try { wm.removeView(card); } catch (Exception ignored) { }
-                }).start(), 8000);
+                }).start(), 20000);
     }
 
     static void speak(Context c, String text) {

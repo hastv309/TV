@@ -34,10 +34,8 @@ public class WatchService extends AccessibilityService {
         if (e == null || e.getPackageName() == null) return;
         String pkg = e.getPackageName().toString();
         if (pkg.startsWith("com.mbm_soft")) {
-            long now = System.currentTimeMillis();
-            if (now - last < 1500) return;
-            last = now;
-            probe(pkg, getRootInActiveWindow(), 0);
+            // IPTV apps (Aroma, LION MAX): the episode you click is "Show - مدبلج-S1.E7"
+            if (e.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) iptvClick(pkg, e);
             return;
         }
         if (!"net.mbc.shahidTV".equals(pkg)) return;
@@ -47,6 +45,35 @@ public class WatchService extends AccessibilityService {
         AccessibilityNodeInfo root = getRootInActiveWindow();
         if (root == null) return;
         scan(root, 0);
+    }
+
+    private static final Pattern SE = Pattern.compile("^(.+?)[\\s\\-–_|:]*S(\\d{1,2})\\s*[.\\-_ ]?\\s*E(\\d{1,4})\\b.*$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NOISE = Pattern.compile("[\\s\\-–_|:]*(مدبلج|مترجم|dubbed|subbed|HD|FHD|4K)[\\s\\-–_|:]*$", Pattern.CASE_INSENSITIVE);
+
+    private void iptvClick(String pkg, AccessibilityEvent e) {
+        java.util.List<CharSequence> texts = new java.util.ArrayList<>(e.getText());
+        AccessibilityNodeInfo src = e.getSource();
+        if (src != null) collect(src, texts, 0);
+        for (CharSequence t : texts) {
+            if (t == null) continue;
+            Matcher m = SE.matcher(t.toString().trim());
+            if (!m.matches()) continue;
+            String show = m.group(1).trim();
+            for (int i = 0; i < 3; i++) show = NOISE.matcher(show).replaceAll("").trim();
+            if (show.isEmpty()) continue;
+            int season = Integer.parseInt(m.group(2)), ep = Integer.parseInt(m.group(3));
+            WatchStore.add(this, pkg, show, "الموسم " + season + " · الحلقة " + ep, "");
+            android.util.Log.i("TVHW", "saved " + pkg + " | " + show + " | S" + season + "E" + ep);
+            return;
+        }
+        android.util.Log.i("TVHW", "click " + pkg + " | " + texts);
+    }
+
+    private void collect(AccessibilityNodeInfo n, java.util.List<CharSequence> out, int depth) {
+        if (n == null || depth > 6) return;
+        if (n.getText() != null) out.add(n.getText());
+        if (n.getContentDescription() != null) out.add(n.getContentDescription());
+        for (int i = 0; i < n.getChildCount(); i++) collect(n.getChild(i), out, depth + 1);
     }
 
     private boolean scan(AccessibilityNodeInfo n, int depth) {

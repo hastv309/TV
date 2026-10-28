@@ -136,6 +136,9 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         js("window.onResumeHome&&onResumeHome()");
+        // give the system a few seconds to bind the reader, then wake it if it is still off
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() ->
+                new Thread(() -> Adb.reviveWatchService(getApplicationContext())).start(), 6000);
     }
 
     @Override

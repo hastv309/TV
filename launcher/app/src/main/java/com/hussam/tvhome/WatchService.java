@@ -149,6 +149,18 @@ public class WatchService extends AccessibilityService {
         return false;
     }
 
+    /** True while the system has this service bound; the home screen re-enables it when it is not. */
+    static volatile boolean running;
+
+    @Override
+    protected void onServiceConnected() { running = true; }
+
+    @Override
+    public boolean onUnbind(android.content.Intent i) { running = false; return super.onUnbind(i); }
+
+    @Override
+    public void onDestroy() { running = false; super.onDestroy(); }
+
     @Override
     public void onInterrupt() { }
 }

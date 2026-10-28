@@ -73,6 +73,28 @@ final class Adb {
         }
     }
 
+    private static long lastRevive;
+
+    /** After an update or force-stop Android may leave the service "enabled" but unbound: toggle it off and on. */
+    static void reviveWatchService(Context c) {
+        long now = System.currentTimeMillis();
+        if (now - lastRevive < 120_000L || WatchService.running || !ready(c)) return;
+        lastRevive = now;
+        String p = c.getPackageName(), svc = p + "/" + p + ".WatchService";
+        String cur = android.provider.Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
+        StringBuilder others = new StringBuilder();
+        if (cur != null) for (String x : cur.split(":")) {
+            if (x.isEmpty() || x.equals(svc) || x.equals(p + "/.WatchService")) continue;
+            if (others.length() > 0) others.append(':');
+            others.append(x);
+        }
+        String without = others.length() == 0 ? "settings delete secure enabled_accessibility_services"
+                : "settings put secure enabled_accessibility_services '" + others + "'";
+        String with = "settings put secure enabled_accessibility_services '" + (others.length() == 0 ? svc : others + ":" + svc) + "'";
+        shell(c, without + "; sleep 1; " + with + "; settings put secure accessibility_enabled 1; echo ok");
+        android.util.Log.i("TVHW", "revived WatchService");
+    }
+
     /** One-time grants the banner and exact alarms need; harmless to repeat. */
     static void grantExtras(Context c) {
         String p = c.getPackageName();

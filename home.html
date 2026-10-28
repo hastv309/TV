@@ -104,12 +104,12 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .viewport{overflow:visible;padding:18px 0 18px 18px;margin-left:-18px}
 
 /* continue watching (Shahid episodes, YouTube videos) */
-.wc{width:540px;height:112px;flex:none;display:flex;align-items:center;gap:18px;padding:0 18px 0 0;border-radius:18px;background:rgba(255,255,255,.07);
+.wc{width:408px;height:104px;flex:none;display:flex;align-items:center;gap:14px;padding:0 18px 0 0;border-radius:18px;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:transform .12s ease-out}
-.wc .th{width:199px;height:112px;flex:none;background:#222 center/cover no-repeat}
+.wc .th{width:118px;height:104px;flex:none;background:#222 center/cover no-repeat}
 .wc .tx{min-width:0;flex:1;font-family:var(--f-ar)}
-.wc .t{font-size:24px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wc .s{font-size:17px;color:var(--soft);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc .t{font-size:20px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wc .s{font-size:15px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wc.f{transform:scale(1.05);outline:4px solid #fff;outline-offset:-1px}
 body.hasCW #secApps{top:345px!important}
 body.hasCW .feed{top:885px}
@@ -337,12 +337,14 @@ function toggleHide(i){var pk=shownApps[i].pkg,h=load("hidden",[]),k=h.indexOf(p
 
 /* ---------- continue watching (falls back to recently opened apps) ---------- */
 var cwItems=[];
-var SAMPLE_WATCH=[{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
+var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7",t:Date.now()-5*6e4},{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
   {pkg:"com.google.android.youtube.tv",title:"يلا تنام يلا تنام مع لولو",sub:"قناة وناسة - لولو",t:Date.now()-3*36e5,vid:""}];
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
-  var seenPkg={};cwItems=getWatch().filter(function(it){if(seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,2);
+  /* only these apps, one card each (latest show), up to 4 */
+  var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax","net.mbc.shahidTV","com.netflix.ninja"];
+  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,4);
   $("secCW").hidden=!cwItems.length;document.body.classList.toggle("hasCW",!!cwItems.length);
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
     var e=document.createElement("div");e.className="wc";
@@ -467,7 +469,7 @@ function paintFocus(){
   $("appName").textContent=r===1?(a?a.label:(c>=shownApps.length?(showHidden?"Done":"Hidden apps"):"")):($("appName").textContent);
   if(a&&a.color){clearTimeout(glowT);var col=a.color;glowT=setTimeout(function(){setGlow(col)},180)}
   /* horizontal scroll of the focused row */
-  [["apps",1,264],["cw",2,562]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
+  [["apps",1,264],["cw",2,432]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
   /* vertical scroll: the movies page sits below the home screen */
   $("page").style.transform=focus.row>=3?"translateY(-1080px)":"translateY(0)"}
 function moveFocus(dr,dc){

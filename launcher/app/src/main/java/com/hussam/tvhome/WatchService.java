@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +82,29 @@ public class WatchService extends AccessibilityService {
         return false;
     }
 
+    private static final Pattern HMS = Pattern.compile("^(\\d{1,2})[.:](\\d{2})[.:](\\d{2})$");
+
+    /** "00.23.10" → seconds, else -1. */
+    private static int secs(CharSequence t) {
+        Matcher m = HMS.matcher(t.toString().trim());
+        if (!m.matches()) return -1;
+        return Integer.parseInt(m.group(1)) * 3600 + Integer.parseInt(m.group(2)) * 60 + Integer.parseInt(m.group(3));
+    }
+
+    private static String clock(int s) {
+        int h = s / 3600, m = (s % 3600) / 60, x = s % 60;
+        return h > 0 ? String.format(Locale.US, "%d:%02d:%02d", h, m, x) : String.format(Locale.US, "%d:%02d", m, x);
+    }
+
     private boolean saveFirstEpisode(String pkg, java.util.List<CharSequence> texts) {
+        int pos = -1, len = -1;
+        for (CharSequence t : texts) {
+            if (t == null) continue;
+            int v = secs(t);
+            if (v < 0) continue;
+            if (pos < 0) pos = v; else if (len < 0) len = v;
+        }
+        if (pos >= 0 && len >= 0 && pos > len) { int tmp = pos; pos = len; len = tmp; }
         for (CharSequence t : texts) {
             if (t == null) continue;
             Matcher m = SE.matcher(t.toString().trim());
@@ -92,7 +115,9 @@ public class WatchService extends AccessibilityService {
             int season = Integer.parseInt(m.group(2)), ep = Integer.parseInt(m.group(3));
             String key = pkg + show + season + "x" + ep;
             if (!key.equals(lastSaved) || true) {
-                WatchStore.add(this, pkg, show, "الموسم " + season + " · الحلقة " + ep, "");
+                String at = pos > 0 ? " · " + clock(pos) + (len > 0 ? " / " + clock(len) : "") : "";
+                if (pos <= 0 && key.equals(lastSaved)) return true; // keep the last known time
+                WatchStore.add(this, pkg, show, "الموسم " + season + " · الحلقة " + ep + at, "");
                 if (!key.equals(lastSaved)) android.util.Log.i("TVHW", "saved " + pkg + " | " + show + " | S" + season + "E" + ep);
                 lastSaved = key;
             }

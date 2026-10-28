@@ -349,7 +349,7 @@ var cwItems=[];
 var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7",t:Date.now()-5*6e4},{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
   {pkg:"com.google.android.youtube.tv",title:"يلا تنام يلا تنام مع لولو",sub:"قناة وناسة - لولو",t:Date.now()-3*36e5,vid:""}];
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
-function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").replace(/الجزء\s*(\d+)/,"ج$1").replace(/الحلقة\s*(\d+)/,"ح$1")}
+function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").replace(/الجزء\s*(\d+)/,"ج$1").replace(/الحلقة\s*(\d+)/,"ح$1").replace(/\s*\/\s*[\d:]+$/,"")}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
   /* only these apps, one line each (latest show), up to 4 */
@@ -494,6 +494,7 @@ function activate(long){
   var r=focus.row,c=focus.col;
   if(r===0){if(long&&BTNS[c].id==="settings"){var PR=load("prayerOn",true);openMenu("Home screen",[
       ["Test prayer alert (in 10 s)",function(){tvCall("testPrayer",10);toast("Alert in 10 seconds · open any app to see it on top")}],
+      ["Change prayer voice",function(){tvCall("nextVoice");toast("Switching voice…")}],
       [PR?"Turn prayer alerts off":"Turn prayer alerts on",function(){save("prayerOn",!PR);schedulePrayers();toast(!PR?"Prayer alerts on":"Prayer alerts off")}],
       ["Clear continue watching",function(){tvCall("clearWatch");renderCW();paintFocus();toast("Cleared")}],
       [SOUND?"Turn sounds off":"Turn sounds on",function(){SOUND=!SOUND;save("sound",SOUND);toast(SOUND?"Sounds on":"Sounds off")}]]);return}doBtn(BTNS[c].id)}
@@ -528,6 +529,7 @@ function goHome(){if(menuState){closeMenu();return}focus={row:1,col:0};paintFocu
 /* called by the Android app */
 window.onHome=goHome;window.onBack=function(){if(menuState)closeMenu();else goHome()};
 window.onResumeHome=function(){renderApps();renderCW();paintFocus();renderInfo();schedulePrayers()};
+window.onVoice=function(r){toast(r==="0/0"?"No Arabic voices on this TV":"Voice "+r+" · press again for the next one")};
 window.onSleepCancelled=function(){sleepAt=0;renderBtns();paintFocus()};
 
 /* ---------- interface sounds: short soft clicks made with Web Audio ---------- */

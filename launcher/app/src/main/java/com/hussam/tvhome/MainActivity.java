@@ -258,6 +258,12 @@ public class MainActivity extends Activity {
             h.postDelayed(() -> PrayerReceiver.speak(c, "حان الآن موعد صلاة المغرب"), delaySec * 1000L + 700);
         }
 
+        /** Cycles the Arabic voice used for prayer alerts; the page gets onVoice("n/total"). */
+        @JavascriptInterface
+        public void nextVoice() {
+            PrayerReceiver.nextVoice(getApplicationContext(), r -> js("window.onVoice&&onVoice('" + r + "')"));
+        }
+
         @JavascriptInterface
         public void clearWatch() {
             WatchStore.clear(MainActivity.this);

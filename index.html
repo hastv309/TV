@@ -510,7 +510,37 @@ var HADITH=[
  ["البرّ حسن الخلق","رواه مسلم"],
  ["من أحب أن يُبسط له في رزقه ويُنسأ له في أثره فليصل رحمه","متفق عليه"],
  ["لا تغضب","رواه البخاري"],
- ["الكلمة الطيبة صدقة","متفق عليه"]];
+ ["الكلمة الطيبة صدقة","متفق عليه"],
+ ["تبسّمك في وجه أخيك لك صدقة","رواه الترمذي"],
+ ["الراحمون يرحمهم الرحمن، ارحموا من في الأرض يرحمكم من في السماء","رواه أبو داود والترمذي"],
+ ["من حسن إسلام المرء تركه ما لا يعنيه","رواه الترمذي"],
+ ["اتق الله حيثما كنت، وأتبع السيئة الحسنة تمحها، وخالق الناس بخلق حسن","رواه الترمذي"],
+ ["أكمل المؤمنين إيمانًا أحسنهم خلقًا","رواه أبو داود والترمذي"],
+ ["خيركم خيركم لأهله، وأنا خيركم لأهلي","رواه الترمذي"],
+ ["لا يشكر الله من لا يشكر الناس","رواه أبو داود والترمذي"],
+ ["الحياء شعبة من الإيمان","متفق عليه"],
+ ["إن الله جميل يحب الجمال","رواه مسلم"],
+ ["المرء مع من أحب","متفق عليه"],
+ ["من صلّى البردين دخل الجنة","متفق عليه"],
+ ["ما من مسلم يغرس غرسًا أو يزرع زرعًا فيأكل منه طير أو إنسان أو بهيمة إلا كان له به صدقة","متفق عليه"],
+ ["أوَلا أدلكم على شيء إذا فعلتموه تحاببتم؟ أفشوا السلام بينكم","رواه مسلم"],
+ ["احرص على ما ينفعك، واستعن بالله ولا تعجز","رواه مسلم"],
+ ["عجبًا لأمر المؤمن، إن أمره كله خير","رواه مسلم"],
+ ["من يُرد الله به خيرًا يفقّهه في الدين","متفق عليه"],
+ ["بلّغوا عني ولو آية","رواه البخاري"],
+ ["إن من أحبكم إليّ وأقربكم مني مجلسًا يوم القيامة أحاسنكم أخلاقًا","رواه الترمذي"],
+ ["اتقوا النار ولو بشق تمرة","متفق عليه"],
+ ["دع ما يريبك إلى ما لا يريبك","رواه الترمذي والنسائي"],
+ ["إن الله طيب لا يقبل إلا طيبًا","رواه مسلم"],
+ ["انصر أخاك ظالمًا أو مظلومًا","رواه البخاري"],
+ ["الصلوات الخمس، والجمعة إلى الجمعة، ورمضان إلى رمضان، مكفّرات ما بينهن إذا اجتُنبت الكبائر","رواه مسلم"],
+ ["لا يدخل الجنة قاطع","متفق عليه"],
+ ["أفضل الذكر لا إله إلا الله","رواه الترمذي"],
+ ["مثل الذي يذكر ربه والذي لا يذكر ربه مثل الحي والميت","رواه البخاري"],
+ ["السواك مطهرة للفم مرضاة للرب","رواه النسائي"],
+ ["خير الصدقة ما كان عن ظهر غنى","رواه البخاري"],
+ ["من غشّنا فليس منا","رواه مسلم"],
+ ["أدِّ الأمانة إلى من ائتمنك، ولا تخن من خانك","رواه أبو داود والترمذي"]];
 
 /* ---------- fact of the day ---------- */
 var FACTS=[
@@ -549,14 +579,17 @@ var FACTS=[
 var NEWS_FALLBACK={updated:"",items:[]};
 var news=NEWS_FALLBACK,nwIdx=0;
 function dayNumber(){var p=rParts(Date.now());return Math.floor(Date.UTC(p.y,p.m-1,p.d)/DAY)}
-function showDaily(){
-  var d=dayNumber(),h=HADITH[d%HADITH.length],f=FACTS[(d*7+3)%FACTS.length];
-  $("hdT").textContent="«"+h[0]+"»";$("hdS").textContent=h[1];
-  $("fcT").textContent=f}
+/* hadith and fact rotate every 20 s (staggered); fresh facts come with news.json */
+var hdIdx=Math.floor(Math.random()*HADITH.length),fcIdx=Math.floor(Math.random()*1000);
+function fadeSwap(ids,fn,now){if(now){fn();return}ids.forEach(function(i){$(i).style.transition="opacity .7s";$(i).style.opacity=0});
+  setTimeout(function(){fn();ids.forEach(function(i){$(i).style.opacity=1})},700)}
+function showHadith(now){var h=HADITH[hdIdx++%HADITH.length];fadeSwap(["hdT","hdS"],function(){$("hdT").textContent="«"+h[0]+"»";$("hdS").textContent=h[1]},now)}
+function showFact(now){var list=(news.facts&&news.facts.length)?news.facts:FACTS,f=list[fcIdx++%list.length];fadeSwap(["fcT"],function(){$("fcT").textContent=f},now)}
+function showDaily(){showHadith(true);showFact(true)}
 function loadNews(){
   if(!/^https?:/.test(location.protocol))return;
   fetch("news.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()})
-  .then(function(j){if(j&&j.items&&j.items.length){news=j;nwIdx=0;showNews(true)}}).catch(function(){})}
+  .then(function(j){if(j&&j.items&&j.items.length){var fresh=j.updated!==news.updated;news=j;if(fresh){nwIdx=0;showNews(true);fcIdx=0;showFact(true)}}}).catch(function(){})}
 function showNews(now){
   var items=news.items||[],box=$("nwR");
   if(!items.length){$("nwT").textContent="بانتظار أول تحديث للأخبار";$("nwS").textContent="";$("nwM").textContent="";return}
@@ -579,9 +612,10 @@ function tick(){try{render()}catch(e){}}
 tick();drawSky();showNew();loadWeather();
 showDaily();showNews(true);loadNews();
 loadData();setInterval(loadData,60*60000);
-setInterval(showDaily,10*60000);
-setInterval(function(){showNews(false)},12000);
-setInterval(loadNews,20*60000);
+setInterval(function(){showNews(false)},20000);
+setTimeout(function(){setInterval(function(){showFact(false)},20000)},7000);
+setTimeout(function(){setInterval(function(){showHadith(false)},20000)},14000);
+setInterval(loadNews,15*60000);
 loadPhotoInfo(nextPhoto);
 setInterval(tick,5000);
 setInterval(drawSky,60000);

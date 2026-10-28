@@ -598,7 +598,7 @@ function schedulePrayers(){
 renderBtns();renderApps();renderCW();renderTrends();renderMovies();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
 loadData();loadWeather();loadNews();showFact();schedulePrayers();
-setInterval(function(){showNews(false)},12000);setInterval(loadNews,15*60000);setInterval(function(){showFact(true)},90000);setInterval(schedulePrayers,60*60000);
+setInterval(function(){showNews(false)},20000);setInterval(loadNews,15*60000);setTimeout(function(){setInterval(function(){showFact(true)},20000)},10000);setInterval(schedulePrayers,60*60000);
 setInterval(function(){renderInfo();if(sleepAt){renderBtns();paintFocus()}},10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
 setInterval(function(){if(!menuState&&focus.row!==2)renderCW()},60000);

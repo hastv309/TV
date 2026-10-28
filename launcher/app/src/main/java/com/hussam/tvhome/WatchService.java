@@ -35,7 +35,17 @@ public class WatchService extends AccessibilityService {
         String pkg = e.getPackageName().toString();
         if (pkg.startsWith("com.mbm_soft")) {
             // IPTV apps (Aroma, LION MAX): the episode you click is "Show - مدبلج-S1.E7"
-            if (e.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) iptvClick(pkg, e);
+            if (e.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) { iptvClick(pkg, e); return; }
+            // the player overlay also shows "Show-S1.E1": read it while watching (throttled)
+            long now = System.currentTimeMillis();
+            if (now - lastIptv < 3000) return;
+            lastIptv = now;
+            AccessibilityNodeInfo root = getRootInActiveWindow();
+            if (root != null && looksLikePlayer(root)) {
+                java.util.List<CharSequence> texts = new java.util.ArrayList<>();
+                collect(root, texts, 0);
+                saveFirstEpisode(pkg, texts);
+            }
             return;
         }
         if (!"net.mbc.shahidTV".equals(pkg)) return;
@@ -54,6 +64,24 @@ public class WatchService extends AccessibilityService {
         java.util.List<CharSequence> texts = new java.util.ArrayList<>(e.getText());
         AccessibilityNodeInfo src = e.getSource();
         if (src != null) collect(src, texts, 0);
+        if (!saveFirstEpisode(pkg, texts)) android.util.Log.i("TVHW", "click " + pkg + " | " + texts);
+    }
+
+    private long lastIptv;
+    private String lastSaved = "";
+
+    /** The player screen has playback controls (pause / rewind) next to the episode title. */
+    private boolean looksLikePlayer(AccessibilityNodeInfo root) {
+        java.util.List<CharSequence> t = new java.util.ArrayList<>();
+        collect(root, t, 0);
+        for (CharSequence x : t) {
+            String v = x.toString();
+            if (v.contains("إيقاف مؤقت") || v.contains("تقديم سريع") || v.contains("إرجاع") || v.equalsIgnoreCase("pause")) return true;
+        }
+        return false;
+    }
+
+    private boolean saveFirstEpisode(String pkg, java.util.List<CharSequence> texts) {
         for (CharSequence t : texts) {
             if (t == null) continue;
             Matcher m = SE.matcher(t.toString().trim());
@@ -62,15 +90,19 @@ public class WatchService extends AccessibilityService {
             for (int i = 0; i < 3; i++) show = NOISE.matcher(show).replaceAll("").trim();
             if (show.isEmpty()) continue;
             int season = Integer.parseInt(m.group(2)), ep = Integer.parseInt(m.group(3));
-            WatchStore.add(this, pkg, show, "الموسم " + season + " · الحلقة " + ep, "");
-            android.util.Log.i("TVHW", "saved " + pkg + " | " + show + " | S" + season + "E" + ep);
-            return;
+            String key = pkg + show + season + "x" + ep;
+            if (!key.equals(lastSaved) || true) {
+                WatchStore.add(this, pkg, show, "الموسم " + season + " · الحلقة " + ep, "");
+                if (!key.equals(lastSaved)) android.util.Log.i("TVHW", "saved " + pkg + " | " + show + " | S" + season + "E" + ep);
+                lastSaved = key;
+            }
+            return true;
         }
-        android.util.Log.i("TVHW", "click " + pkg + " | " + texts);
+        return false;
     }
 
     private void collect(AccessibilityNodeInfo n, java.util.List<CharSequence> out, int depth) {
-        if (n == null || depth > 6) return;
+        if (n == null || depth > 25) return;
         if (n.getText() != null) out.add(n.getText());
         if (n.getContentDescription() != null) out.add(n.getContentDescription());
         for (int i = 0; i < n.getChildCount(); i++) collect(n.getChild(i), out, depth + 1);

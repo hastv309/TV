@@ -303,8 +303,8 @@ function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").repla
 function renderCW(){
   var box=$("cw");box.innerHTML="";
   /* only these apps, one line each (latest show) */
-  var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax","com.netflix.ninja"];
-  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,3);
+  var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax"];
+  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,2);
   $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
     var e=document.createElement("div");e.className="nt";e.style.setProperty("--c",a.color||"#888");

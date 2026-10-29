@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -59,7 +57,6 @@ public class MainActivity extends Activity {
     WebView web;
     boolean usingFallback = false;
     final Map<String, JSONObject> appCache = new HashMap<>();
-    final List<String> watchIntents = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,14 +87,6 @@ public class MainActivity extends Activity {
             }
         };
         buildWebView();
-
-        if (Build.VERSION.SDK_INT >= 23
-                && checkSelfPermission("com.android.providers.tv.permission.READ_EPG_DATA") != PackageManager.PERMISSION_GRANTED) {
-            try {
-                requestPermissions(new String[]{"com.android.providers.tv.permission.READ_EPG_DATA"}, 1);
-            } catch (Exception ignored) {
-            }
-        }
     }
 
     WebViewClient client;
@@ -413,118 +402,5 @@ public class MainActivity extends Activity {
             if (start(dream)) return true;
             return start(new Intent(Settings.ACTION_DREAM_SETTINGS));
         }
-
-        /** minutes > 0: schedule; 0: cancel; < 0: turn off now. Returns false when sleep is not set up. */
-        @JavascriptInterface
-        public boolean sleepIn(int minutes) {
-            Context ctx = MainActivity.this;
-            DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-            boolean admin = dpm != null && dpm.isAdminActive(new ComponentName(ctx, SleepAdmin.class));
-            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pi = PendingIntent.getBroadcast(ctx, 7, new Intent(ctx, SleepReceiver.class),
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            if (am != null) am.cancel(pi);
-            if (minutes == 0) return true;
-            if (!admin) return false;
-            if (minutes < 0) return SleepReceiver.lockNow(ctx);
-            long at = System.currentTimeMillis() + minutes * 60000L;
-            if (am != null) am.set(AlarmManager.RTC_WAKEUP, at, pi);
-            return true;
-        }
-
-        @JavascriptInterface
-        public boolean sleepReady() {
-            DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-            return dpm != null && dpm.isAdminActive(new ComponentName(MainActivity.this, SleepAdmin.class));
-        }
-
-        @JavascriptInterface
-        public String watchNext() {
-            JSONObject res = new JSONObject();
-            JSONArray items = new JSONArray();
-            synchronized (watchIntents) {
-                watchIntents.clear();
-                Cursor c = null;
-                try {
-                    Uri uri = Uri.parse("content://android.media.tv/watch_next_program");
-                    try {
-                        c = getContentResolver().query(uri, null, null, null, "last_engagement_time_utc_millis DESC");
-                    } catch (RuntimeException bad) {
-                        c = getContentResolver().query(uri, null, null, null, null);
-                    }
-                    if (c != null) {
-                        while (c.moveToNext() && items.length() < 12) {
-                            String title = str(c, "title");
-                            String intentUri = str(c, "intent_uri");
-                            if (title == null || title.isEmpty() || intentUri == null) continue;
-                            JSONObject o = new JSONObject();
-                            o.put("title", title);
-                            String ep = str(c, "episode_title");
-                            String season = str(c, "season_display_number");
-                            String num = str(c, "episode_display_number");
-                            StringBuilder sub = new StringBuilder();
-                            if (season != null && !season.isEmpty()) sub.append("S").append(season);
-                            if (num != null && !num.isEmpty()) sub.append(sub.length() > 0 ? " · " : "").append("E").append(num);
-                            if (ep != null && !ep.isEmpty()) sub.append(sub.length() > 0 ? " · " : "").append(ep);
-                            o.put("sub", sub.toString());
-                            o.put("pkg", str(c, "package_name"));
-                            long pos = lng(c, "last_playback_position_millis");
-                            long dur = lng(c, "duration_millis");
-                            if (dur > 0 && pos >= 0) {
-                                o.put("progress", Math.min(1.0, pos / (double) dur));
-                                o.put("left", Math.max(1, (dur - pos) / 60000L));
-                            }
-                            String img = str(c, "thumbnail_uri");
-                            if (img == null || img.isEmpty()) img = str(c, "poster_art_uri");
-                            if (img != null && !img.isEmpty()) {
-                                if (img.startsWith("http")) o.put("img", img);
-                                else {
-                                    Bitmap b = loadImage(img);
-                                    if (b != null) o.put("img", bitmapToDataUrl(b, true));
-                                }
-                            }
-                            watchIntents.add(intentUri);
-                            items.put(o);
-                        }
-                    }
-                    res.put("ok", true);
-                } catch (SecurityException se) {
-                    try { res.put("ok", false); res.put("error", "permission"); } catch (Exception ignored) { }
-                } catch (Exception e) {
-                    try { res.put("ok", false); res.put("error", String.valueOf(e.getMessage())); } catch (Exception ignored) { }
-                } finally {
-                    if (c != null) c.close();
-                }
-            }
-            try { res.put("items", items); } catch (Exception ignored) { }
-            return res.toString();
-        }
-
-        @JavascriptInterface
-        public boolean openWatchNext(int index) {
-            String uri;
-            synchronized (watchIntents) {
-                if (index < 0 || index >= watchIntents.size()) return false;
-                uri = watchIntents.get(index);
-            }
-            try {
-                Intent i = Intent.parseUri(uri, Intent.URI_INTENT_SCHEME);
-                return start(i);
-            } catch (Exception e) {
-                return false;
-            }
-        }
-    }
-
-    static String str(Cursor c, String col) {
-        int i = c.getColumnIndex(col);
-        if (i < 0 || c.isNull(i)) return null;
-        return c.getString(i);
-    }
-
-    static long lng(Cursor c, String col) {
-        int i = c.getColumnIndex(col);
-        if (i < 0 || c.isNull(i)) return -1;
-        return c.getLong(i);
     }
 }

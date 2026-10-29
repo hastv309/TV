@@ -4,4 +4,5 @@
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="500"
+    android:packageNames="com.mbm_soft.aroma4kitv,com.mbm_soft.lionmax"
     android:description="@string/watch_desc" />

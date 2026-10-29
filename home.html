@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@500;700&display=swap">
 <style>
 /* Layout: 1920x1080 TV canvas. Clock block top-left, icon buttons top-right,
-   focused app name + apps row in the middle, continue watching below, trends further down (scrolls into view). */
+   focused app name + apps row in the middle, continue note top right, news below, movies page further down. */
 :root{
   --ink:#fbf7f0; --soft:rgba(251,247,240,.72); --faint:rgba(251,247,240,.5);
   --line:rgba(255,255,255,.16); --chip:rgba(255,255,255,.1);
@@ -103,14 +103,6 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .app.more{background:rgba(255,255,255,.08);border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--soft)}
 .viewport{overflow:visible;padding:18px 0 18px 18px;margin-left:-18px}
 
-/* continue watching (Shahid episodes, YouTube videos) */
-.wc{width:408px;height:104px;flex:none;display:flex;align-items:center;gap:14px;padding:0 18px 0 0;border-radius:18px;background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:transform .12s ease-out}
-.wc .th{width:118px;height:104px;flex:none;background:#222 center/cover no-repeat}
-.wc .tx{min-width:0;flex:1;font-family:var(--f-ar)}
-.wc .t{font-size:20px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.wc .s{font-size:15px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wc.f{transform:scale(1.05);outline:4px solid #fff;outline-offset:-1px}
 /* sticky note: where you stopped (auto) */
 .note{position:absolute;right:96px;top:160px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.55);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);font-family:var(--f-ar);direction:rtl}
@@ -122,31 +114,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .nt .ap{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;width:74px;text-align:left;direction:ltr}
 .nt .ag{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;direction:ltr}
 .nt.f{background:rgba(255,255,255,.95);color:#140d10}.nt.f .e{color:#140d10;background:rgba(0,0,0,.08)}.nt.f .ap,.nt.f .ag{color:#6b5a50}
-/* old */
-.cw{display:flex;gap:22px}
-.ep{width:340px;flex:none;transition:transform .12s ease-out}
-.ep .th{height:191px;border-radius:14px;position:relative;overflow:hidden;background:#1b1b22 center/cover no-repeat}
-.ep .th::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.6),rgba(0,0,0,0) 55%)}
-.ep .bar{position:absolute;left:14px;right:14px;bottom:12px;height:5px;border-radius:3px;background:rgba(255,255,255,.3)}
-.ep .bar span{display:block;height:100%;border-radius:3px;background:#fff}
-.ep .tag{position:absolute;top:12px;left:12px;font-size:14px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:99px;background:rgba(0,0,0,.6)}
-.ep .t{margin-top:12px;font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ep .s{font-size:16px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ep.f{transform:scale(1.06)}.ep.f .th{outline:4px solid #fff}
-.ep.recent{width:300px}.ep.recent .th{height:169px;background-size:cover}.ep.recent .th::before{display:none}
 
-/* trends */
-.trends{display:flex;gap:22px}
-.tr{width:440px;background:rgba(8,12,20,.45);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 22px;transition:box-shadow .2s}
-.tr.f{box-shadow:0 0 0 3px #fff}
-.tr .hd{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:.14em}
-.tr .hd i{width:11px;height:11px;border-radius:50%}.tr .hd small{margin-left:auto;font-weight:500;color:var(--faint);letter-spacing:.06em;font-size:15px}
-.tr .one{display:flex;align-items:center;gap:14px;margin:8px 0}
-.tr .one span{font-size:52px;font-weight:200;color:var(--glow);line-height:.9}
-.tr .one em{display:block;font-style:normal;font-size:12px;letter-spacing:.14em;color:var(--glow)}
-.tr .one b{font-size:26px;font-weight:600}
-.tr ol{list-style:none;border-top:1px solid rgba(255,255,255,.14);padding-top:8px;display:flex;flex-direction:column;gap:5px;font-size:19px;color:var(--soft)}
-.tr ol li em{font-style:normal;color:var(--glow);display:inline-block;width:1.4em}
 
 /* long-press menu and toast */
 .menu{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:20}
@@ -184,10 +152,6 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
     <div id="cw"></div>
   </aside>
 
-  <section class="sec" style="top:1010px" id="secTr" hidden>
-    <div class="h">TRENDING THIS WEEK</div>
-    <div class="trends" id="trends"></div>
-  </section>
 
 <footer class="feed" id="feed">
   <article class="fcard news" dir="rtl"><div class="k"><i></i>آخر الأخبار<span class="m" id="nwM"></span></div>
@@ -269,11 +233,6 @@ var SAMPLE_APPS=[["com.netflix.ninja","Netflix","#b1121c"],["net.mbc.shahidTV","
  ["com.thmanyah.shasha.tv","Thmanyah","#3b2a6e"],["com.mbm_soft.aroma4kitv","Aroma","#2b3540"],["com.mbm_soft.lionmax","LionMax","#7a5b18"]]
  .map(function(a){return{pkg:a[0],label:a[1],color:a[2],banner:""}});
 function getApps(){var j=tvCall("apps");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_APPS}
-function getWatchNext(){var j=tvCall("watchNext");if(j){try{return JSON.parse(j)}catch(e){}}
-  if(HAS_TV)return{ok:false,items:[]};
-  return{ok:true,items:[{title:"Lupin",sub:"Part 4 · E2",pkg:"com.netflix.ninja",img:"",progress:.35,left:34},
-    {title:"طالع نازل",sub:"S1 · E6",pkg:"net.mbc.shahidTV",img:"",progress:.62,left:21}]}}
-
 /* ---------- storage helpers (order, hidden apps, recents) ---------- */
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -292,23 +251,14 @@ var ICONS={
 
 /* ---------- buttons ---------- */
 var BTNS=[{id:"screensaver",label:"Screensaver"},{id:"clean",label:"Clean"},{id:"wifi",label:"Wi-Fi"},{id:"settings",label:"Settings"}];
-var sleepAt=0;
 function renderBtns(){var n=$("btns");n.innerHTML="";
   BTNS.forEach(function(b){var s=document.createElement("span");s.className="ib";s.innerHTML=svg(ICONS[b.id])+"<em></em>";
-    s.querySelector("em").textContent=b.id==="sleep"&&sleepAt?("Sleep in "+Math.max(1,Math.round((sleepAt-Date.now())/6e4))+" min"):b.label;
-    if(b.id==="sleep"&&sleepAt)s.classList.add("armed");n.appendChild(s)})}
+    s.querySelector("em").textContent=b.label;n.appendChild(s)})}
 function doBtn(id){
   if(id==="settings")tvCall("openSettings");
   else if(id==="wifi")tvCall("openWifi");
   else if(id==="screensaver"){if(tvCall("screensaver")===false)toast("Screensaver is not available")}
-  else if(id==="clean")cleanUp();
-  else if(id==="sleep")openMenu("Sleep timer",[["Turn off now",function(){sleepIn(-1)}],["In 30 minutes",function(){sleepIn(30)}],["In 60 minutes",function(){sleepIn(60)}],
-    ["In 90 minutes",function(){sleepIn(90)}],["Cancel timer",function(){sleepIn(0)}]])}
-function sleepIn(min){
-  var r=tvCall("sleepIn",min);
-  if(HAS_TV&&r===false){toast("Sleep needs a one-time setup command");return}
-  sleepAt=min>0?Date.now()+min*6e4:0;renderBtns();paintFocus();
-  toast(min>0?"The TV will turn off in "+min+" minutes":min===0?"Sleep timer cancelled":"Turning off")}
+  else if(id==="clean")cleanUp();}
 
 /* ---------- apps row ---------- */
 var apps=[],shownApps=[],showHidden=false;
@@ -346,15 +296,15 @@ function toggleHide(i){var pk=shownApps[i].pkg,h=load("hidden",[]),k=h.indexOf(p
 
 /* ---------- continue watching (falls back to recently opened apps) ---------- */
 var cwItems=[];
-var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7",t:Date.now()-5*6e4},{pkg:"net.mbc.shahidTV",title:"منطقة آمنة",sub:"الحلقة 6",t:Date.now()-25*6e4},
-  {pkg:"com.google.android.youtube.tv",title:"يلا تنام يلا تنام مع لولو",sub:"قناة وناسة - لولو",t:Date.now()-3*36e5,vid:""}];
+var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7 · 23:10",t:Date.now()-5*6e4},
+  {pkg:"com.mbm_soft.lionmax",title:"Breaking Bad",sub:"الموسم 3 · الحلقة 9",t:Date.now()-2*864e5}];
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
 function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").replace(/الجزء\s*(\d+)/,"ج$1").replace(/الحلقة\s*(\d+)/,"ح$1").replace(/\s*\/\s*[\d:]+$/,"")}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
-  /* only these apps, one line each (latest show), up to 4 */
-  var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax","net.mbc.shahidTV","com.netflix.ninja"];
-  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,4);
+  /* only these apps, one line each (latest show) */
+  var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax","com.netflix.ninja"];
+  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,3);
   $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
     var e=document.createElement("div");e.className="nt";e.style.setProperty("--c",a.color||"#888");
@@ -366,7 +316,7 @@ function renderCW(){
 function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
   if(tvCall("openWatch",it.pkg,it.vid||"")!==true)tvCall("launch",it.pkg)}
 
-/* ---------- trends from data.json ---------- */
+/* ---------- shared data (fixtures, movies) from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
 /* ---------- movies page: weekend picks + top 3 on each platform (data.json → movies) ---------- */
 var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"}};
@@ -409,20 +359,9 @@ function renderMovies(){
     tops.appendChild(panel)})}
 function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT.nf;rememberOpen(p.pkg);if(tvCall("launch",p.pkg)===false)toast("Could not open "+p.name)}
 
-function renderTrends(){$("secTr").hidden=true;return;
-  var box=$("trends");box.innerHTML="";
-  [["nf","NETFLIX","TOP 5 · KSA","var(--nf)"],["sh","SHAHID","TOP 5","var(--sh)"]].forEach(function(p){
-    var l=DATA.trends[p[0]]||[];if(!l.length)return;
-    var c=document.createElement("div");c.className="tr";
-    c.innerHTML='<div class="hd"><i></i><span></span><small></small></div><div class="one"><span>1</span><div><em>#1 THIS WEEK</em><b></b></div></div><ol></ol>';
-    c.querySelector(".hd i").style.background=p[3];c.querySelector(".hd span").textContent=p[1];c.querySelector(".hd small").textContent=p[2];
-    c.querySelector(".one b").textContent=l[0];var ol=c.querySelector("ol");
-    l.slice(1,5).forEach(function(t,i){var li=document.createElement("li"),em=document.createElement("em");em.textContent=i+2;li.appendChild(em);li.appendChild(document.createTextNode(t));ol.appendChild(li)});
-    box.appendChild(c)});
-  $("secTr").hidden=!box.children.length}
 function loadData(){
   var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
-  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){DATA=d;renderTrends();renderMovies();renderInfo();paintFocus()}).catch(function(){})}
+  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){DATA=d;renderMovies();renderInfo();paintFocus()}).catch(function(){})}
 
 /* ---------- clock, prayer, weather, match ---------- */
 var EN_WD=["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
@@ -464,7 +403,7 @@ function setGlow(hex){
 function shade(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)*f|0,g=(n>>8&255)*f|0,b=(n&255)*f|0;return"rgb("+r+","+g+","+b+")"}
 
 /* ---------- focus and remote control ---------- */
-/* rows: 0 buttons, 1 apps, 2 continue watching, 3 trends */
+/* rows: 0 buttons, 1 apps, 2 continue note, 3 weekend picks, 4 top lists */
 var focus={row:1,col:0},menuState=null,glowT=null,lastMove=0;
 function rowLen(r){if(r===0)return BTNS.length;if(r===1)return appCount();if(r===2)return $("secCW").hidden?0:cwItems.length;if(r===3)return $("picks").children.length;if(r===4)return topItems.length;return 0}
 function paintFocus(){
@@ -530,7 +469,6 @@ function goHome(){if(menuState){closeMenu();return}focus={row:1,col:0};paintFocu
 window.onHome=goHome;window.onBack=function(){if(menuState)closeMenu();else goHome()};
 window.onResumeHome=function(){renderApps();renderCW();paintFocus();renderInfo();schedulePrayers()};
 window.onVoice=function(r){toast(r==="0/0"?"No Arabic voices on this TV":"Voice "+r+" · press again for the next one")};
-window.onSleepCancelled=function(){sleepAt=0;renderBtns();paintFocus()};
 
 /* ---------- interface sounds: short soft clicks made with Web Audio ---------- */
 var actx=null,SOUND=load("sound",true);
@@ -613,11 +551,11 @@ function schedulePrayers(){
   tvCall("schedulePrayers",JSON.stringify(load("prayerOn",true)?out.slice(0,8):[]))}
 
 /* ---------- start ---------- */
-renderBtns();renderApps();renderCW();renderTrends();renderMovies();renderInfo();paintFocus();
+renderBtns();renderApps();renderCW();renderMovies();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
 loadData();loadWeather();loadNews();showFact();schedulePrayers();
 setInterval(function(){showNews(false)},20000);setInterval(loadNews,15*60000);setTimeout(function(){setInterval(function(){showFact(true)},20000)},10000);setInterval(schedulePrayers,60*60000);
-setInterval(function(){renderInfo();if(sleepAt){renderBtns();paintFocus()}},10000);
+setInterval(renderInfo,10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
 setInterval(function(){if(!menuState&&focus.row!==2)renderCW()},60000);
 </script>

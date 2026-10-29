@@ -60,14 +60,13 @@ final class Adb {
         return false;
     }
 
-    /** True when every extra (banner, exact alarms, Shahid reader, now-playing listener) is already on. */
+    /** True when every extra (banner, exact alarms, episode reader) is already on. */
     static boolean extrasOn(Context c) {
         try {
             String p = c.getPackageName();
             String a11y = android.provider.Settings.Secure.getString(c.getContentResolver(), "enabled_accessibility_services");
-            String nl = android.provider.Settings.Secure.getString(c.getContentResolver(), "enabled_notification_listeners");
             boolean overlay = android.provider.Settings.canDrawOverlays(c);
-            return overlay && a11y != null && a11y.contains(p + ".WatchService") && nl != null && nl.contains(p);
+            return overlay && a11y != null && a11y.contains(p + ".WatchService");
         } catch (Exception e) {
             return false;
         }
@@ -100,7 +99,6 @@ final class Adb {
         String p = c.getPackageName();
         String svc = p + "/" + p + ".WatchService";
         shell(c, "appops set " + p + " SYSTEM_ALERT_WINDOW allow; appops set " + p + " SCHEDULE_EXACT_ALARM allow;"
-                + " cmd notification allow_listener " + p + "/" + p + ".MediaWatcher;"
                 + " s=$(settings get secure enabled_accessibility_services);"
                 + " case \"$s\" in *" + svc + "*) ;; null|'') settings put secure enabled_accessibility_services " + svc + " ;;"
                 + " *) settings put secure enabled_accessibility_services \"$s:" + svc + "\" ;; esac;"

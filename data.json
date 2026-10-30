@@ -9,11 +9,11 @@
    "Crazy Rich, Incredibly Broke"
   ],
   "sh": [
-   "مسألة حياة أو موت",
-   "ب32",
-   "بوابة الصعود",
+   "A Matter of Life and Death",
+   "32B",
+   "Blackout",
    "What's the Big Deal?!",
-   "Blackout"
+   "Face to Face"
   ]
  },
  "fixtures": [
@@ -202,13 +202,13 @@
   ],
   "sh": [
    {
-    "t": "مسألة حياة أو موت"
+    "t": "A Matter of Life and Death"
    },
    {
-    "t": "ب32"
+    "t": "32B"
    },
    {
-    "t": "بوابة الصعود"
+    "t": "Blackout"
    }
   ]
  }

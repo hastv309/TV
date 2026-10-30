@@ -11,9 +11,9 @@
   "sh": [
    "A Matter of Life and Death",
    "32B",
-   "Blackout",
+   "بوابة الصعود",
    "What's the Big Deal?!",
-   "Face to Face"
+   "Blackout"
   ]
  },
  "fixtures": [
@@ -208,7 +208,7 @@
     "t": "32B"
    },
    {
-    "t": "Blackout"
+    "t": "بوابة الصعود"
    }
   ]
  }

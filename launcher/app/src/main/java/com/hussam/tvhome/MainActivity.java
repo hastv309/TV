@@ -266,16 +266,10 @@ public class MainActivity extends Activity {
             return WatchStore.list(MainActivity.this);
         }
 
-        /** Opens a watched item: a YouTube video by id, otherwise the app itself. */
+        /** Opens the app a watched item came from. */
         @JavascriptInterface
         public boolean openWatch(String pkg, String vid) {
             try {
-                if (vid != null && !vid.isEmpty()) {
-                    Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + vid))
-                            .setPackage(pkg).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(it);
-                    return true;
-                }
                 Intent it = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
                 if (it == null) it = getPackageManager().getLaunchIntentForPackage(pkg);
                 if (it == null) return false;

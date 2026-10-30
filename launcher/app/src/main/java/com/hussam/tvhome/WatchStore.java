@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Recently watched items: {pkg, title, sub, vid, t}, newest first. One entry per app (the latest thing watched there). */
+/** Recently watched items: {pkg, title, sub, vid, t}, newest first. One entry per show; the page shows up to 3 per app. */
 final class WatchStore {
     private WatchStore() { }
 
@@ -20,9 +20,9 @@ final class WatchStore {
             JSONObject cur = new JSONObject().put("pkg", pkg).put("title", title)
                     .put("sub", sub == null ? "" : sub).put("vid", vid == null ? "" : vid).put("t", System.currentTimeMillis());
             out.put(cur);
-            for (int i = 0; i < old.length() && out.length() < 12; i++) {
+            for (int i = 0; i < old.length() && out.length() < 20; i++) {
                 JSONObject o = old.getJSONObject(i);
-                if (o.optString("pkg").equals(pkg)) continue; // keep only the latest item per app
+                if (o.optString("pkg").equals(pkg) && o.optString("title").equals(title)) continue; // same show: update in place
                 out.put(o);
             }
             p.edit().putString("watch", out.toString()).apply();

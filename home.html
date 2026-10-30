@@ -104,12 +104,12 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .viewport{overflow:visible;padding:18px 0 18px 18px;margin-left:-18px}
 
 /* sticky note: where you stopped (auto) */
-.note{position:absolute;right:96px;top:160px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.55);
+.note{position:absolute;right:96px;top:150px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.55);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);font-family:var(--f-ar);direction:rtl}
 .note .k{font-family:var(--f-ui);font-size:15px;font-weight:700;letter-spacing:.16em;color:var(--soft);margin:0 8px 6px;direction:ltr;text-align:right}
-.nt{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 12px;padding-right:24px;border-radius:14px;transition:background .15s;position:relative}
+.nt{display:flex;align-items:center;gap:12px;padding:6px 12px 6px 12px;padding-right:24px;border-radius:14px;transition:background .15s;position:relative}
 .nt:before{content:"";position:absolute;right:8px;top:10px;bottom:10px;width:5px;border-radius:3px;background:var(--c,#888)}
-.nt .n{text-align:right;font-size:22px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nt .n{text-align:right;font-size:20px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nt .e{font-size:16px;color:#fff;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.1);padding:3px 12px;border-radius:99px}
 .nt .ap{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;width:74px;text-align:left;direction:ltr}
 .nt .ag{font-size:13px;color:var(--faint);font-family:var(--f-ui);white-space:nowrap;direction:ltr}
@@ -297,14 +297,20 @@ function toggleHide(i){var pk=shownApps[i].pkg,h=load("hidden",[]),k=h.indexOf(p
 /* ---------- continue watching (falls back to recently opened apps) ---------- */
 var cwItems=[];
 var SAMPLE_WATCH=[{pkg:"com.mbm_soft.aroma4kitv",title:"اسطنبول راسا على عقب",sub:"الموسم 1 · الحلقة 7 · 23:10",t:Date.now()-5*6e4},
-  {pkg:"com.mbm_soft.lionmax",title:"Breaking Bad",sub:"الموسم 3 · الحلقة 9",t:Date.now()-2*864e5}];
+  {pkg:"com.mbm_soft.lionmax",title:"Breaking Bad",sub:"الموسم 3 · الحلقة 9",t:Date.now()-5*36e5},
+  {pkg:"com.mbm_soft.aroma4kitv",title:"Family Register",sub:"الموسم 1 · الحلقة 2 · 41:05",t:Date.now()-864e5},
+  {pkg:"com.mbm_soft.lionmax",title:"Prison Break",sub:"الموسم 2 · الحلقة 4",t:Date.now()-2*864e5},
+  {pkg:"com.mbm_soft.aroma4kitv",title:"الهيبة",sub:"الموسم 4 · الحلقة 11",t:Date.now()-3*864e5}];
 function getWatch(){var j=tvCall("watchList");if(j){try{return JSON.parse(j)}catch(e){}}return HAS_TV?[]:SAMPLE_WATCH}
 function shortSub(x){return (x||"").replace(/الموسم\s*(\d+)/,"م$1").replace(/الجزء\s*(\d+)/,"ج$1").replace(/الحلقة\s*(\d+)/,"ح$1").replace(/\s*\/\s*[\d:]+$/,"")}
 function renderCW(){
   var box=$("cw");box.innerHTML="";
-  /* only these apps, one line each (latest show) */
+  /* only these apps */
   var CW_APPS=["com.mbm_soft.aroma4kitv","com.mbm_soft.lionmax"];
-  var seenPkg={};cwItems=getWatch().filter(function(it){if(CW_APPS.indexOf(it.pkg)<0||seenPkg[it.pkg]||!apps.some(function(a){return a.pkg===it.pkg}))return false;seenPkg[it.pkg]=1;return true}).slice(0,2);
+  /* up to 3 shows per app, newest first; the same show updates in place */
+  var perApp={},seenShow={};cwItems=getWatch().filter(function(it){var k=it.pkg+"|"+it.title;
+    if(CW_APPS.indexOf(it.pkg)<0||seenShow[k]||(perApp[it.pkg]||0)>=3||!apps.some(function(a){return a.pkg===it.pkg}))return false;
+    seenShow[k]=1;perApp[it.pkg]=(perApp[it.pkg]||0)+1;return true});
   $("secCW").hidden=!cwItems.length;
   cwItems.forEach(function(it){var a=apps.filter(function(x){return x.pkg===it.pkg})[0];
     var e=document.createElement("div");e.className="nt";e.style.setProperty("--c",a.color||"#888");
@@ -341,7 +347,7 @@ function renderMovies(){
     var t=document.createElement("div");t.className="t";t.textContent=m.t;t.dir="auto";
     var w=document.createElement("div");w.className="why";w.textContent=m.why||"";w.dir="rtl";
     var me=document.createElement("div");me.className="meta";me.innerHTML='<i class="dot"></i><span></span>';me.firstChild.style.background=p.c;
-    me.lastChild.textContent=[p.name,m.y,m.rt].filter(Boolean).join(" · ");
+    me.lastChild.textContent=[p.name,m.r?"IMDb "+m.r:"",m.y,m.rt].filter(Boolean).join(" · ");
     i.appendChild(tg);i.appendChild(t);i.appendChild(w);i.appendChild(me);e.appendChild(i);box.appendChild(e)});
   $("movies").querySelector(".h").hidden=!pickItems.length;
   var tops=$("tops");tops.innerHTML="";topItems=[];

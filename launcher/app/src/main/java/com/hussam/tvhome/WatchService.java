@@ -114,14 +114,24 @@ public class WatchService extends AccessibilityService {
             android.view.KeyEvent.KEYCODE_BACK, android.view.KeyEvent.KEYCODE_HOME, android.view.KeyEvent.KEYCODE_VOLUME_UP,
             android.view.KeyEvent.KEYCODE_VOLUME_DOWN, android.view.KeyEvent.KEYCODE_VOLUME_MUTE, android.view.KeyEvent.KEYCODE_POWER));
 
+    /** Built-in button map (the home page can override it): YouTube, Prime video→Shahid, APPS→Aroma, Xiaomi TV+→LION MAX. */
+    private static final java.util.Map<Integer, String> DEFAULT_KEYS = new java.util.HashMap<>();
+    static {
+        DEFAULT_KEYS.put(190, "com.google.android.youtube.tv");
+        DEFAULT_KEYS.put(194, "net.mbc.shahidTV");
+        DEFAULT_KEYS.put(284, "com.mbm_soft.aroma4kitv");
+        DEFAULT_KEYS.put(192, "com.mbm_soft.lionmax");
+    }
+
     @Override
     protected boolean onKeyEvent(android.view.KeyEvent e) {
         int code = e.getKeyCode();
         if (PLAIN.contains(code)) return false;
         if (e.getAction() == android.view.KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0)
             android.util.Log.i("TVHW", "key " + code + " " + android.view.KeyEvent.keyCodeToString(code) + " scan=" + e.getScanCode());
-        String pkg = getSharedPreferences("home", MODE_PRIVATE).getString("key." + code, null);
-        if (pkg == null) return false;
+        String pkg = getSharedPreferences("home", MODE_PRIVATE).getString("key." + code, DEFAULT_KEYS.get(code));
+        if (pkg == null || pkg.isEmpty()) return false;
+        if (e.getAction() == android.view.KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0) android.util.Log.i("TVHW", "open " + pkg);
         if (e.getAction() == android.view.KeyEvent.ACTION_UP) {
             try {
                 android.content.Intent it = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);

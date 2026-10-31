@@ -90,6 +90,7 @@ public class MainActivity extends Activity {
     }
 
     WebViewClient client;
+    long loadedAt;
 
     void buildWebView() {
         if (web != null) {
@@ -114,6 +115,7 @@ public class MainActivity extends Activity {
         web.setFocusable(true);
         web.requestFocus();
         usingFallback = false;
+        loadedAt = System.currentTimeMillis();
         web.loadUrl(HOME_URL + "?d=" + (System.currentTimeMillis() / 3600000L));
     }
 
@@ -124,6 +126,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        // pick up page updates: reload when the page is more than an hour old
+        if (System.currentTimeMillis() - loadedAt > 3_600_000L) { buildWebView(); }
         js("window.onResumeHome&&onResumeHome()");
         // give the system a few seconds to bind the reader, then wake it if it is still off
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() ->

@@ -256,6 +256,20 @@ public class MainActivity extends Activity {
             PrayerReceiver.nextVoice(getApplicationContext(), r -> js("window.onVoice&&onVoice('" + r + "')"));
         }
 
+        /** Remote buttons: {"keycode":"package", ...} from the home page; replaces the previous map. */
+        @JavascriptInterface
+        public void setKeyMap(String json) {
+            try {
+                android.content.SharedPreferences p = getSharedPreferences("home", Context.MODE_PRIVATE);
+                android.content.SharedPreferences.Editor ed = p.edit();
+                for (String k : p.getAll().keySet()) if (k.startsWith("key.")) ed.remove(k);
+                JSONObject o = new JSONObject(json);
+                java.util.Iterator<String> it = o.keys();
+                while (it.hasNext()) { String k = it.next(); ed.putString("key." + k, o.getString(k)); }
+                ed.apply();
+            } catch (Exception ignored) { }
+        }
+
         @JavascriptInterface
         public void clearWatch() {
             WatchStore.clear(MainActivity.this);

@@ -556,6 +556,10 @@ function schedulePrayers(){
       out.push({ar:fri?"الجمعة":PN_AR[k],en:fri?"Jumu'ah":PN[k],at:at,time:ampm(hm.h,hm.mi)})}})}
   tvCall("schedulePrayers",JSON.stringify(load("prayerOn",true)?out.slice(0,8):[]))}
 
+/* ---------- remote buttons → apps (keycode: package); updated remotely, no app update needed ---------- */
+var KEYMAP={};
+tvCall("setKeyMap",JSON.stringify(KEYMAP));
+
 /* ---------- start ---------- */
 renderBtns();renderApps();renderCW();renderMovies();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");

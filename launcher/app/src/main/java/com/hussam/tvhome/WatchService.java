@@ -107,6 +107,31 @@ public class WatchService extends AccessibilityService {
         for (int i = 0; i < n.getChildCount(); i++) collect(n.getChild(i), out, depth + 1);
     }
 
+    /* ---------- remote buttons: keycode → app, set by the home page (keymap) ---------- */
+    private static final java.util.Set<Integer> PLAIN = new java.util.HashSet<>(java.util.Arrays.asList(
+            android.view.KeyEvent.KEYCODE_DPAD_UP, android.view.KeyEvent.KEYCODE_DPAD_DOWN, android.view.KeyEvent.KEYCODE_DPAD_LEFT,
+            android.view.KeyEvent.KEYCODE_DPAD_RIGHT, android.view.KeyEvent.KEYCODE_DPAD_CENTER, android.view.KeyEvent.KEYCODE_ENTER,
+            android.view.KeyEvent.KEYCODE_BACK, android.view.KeyEvent.KEYCODE_HOME, android.view.KeyEvent.KEYCODE_VOLUME_UP,
+            android.view.KeyEvent.KEYCODE_VOLUME_DOWN, android.view.KeyEvent.KEYCODE_VOLUME_MUTE, android.view.KeyEvent.KEYCODE_POWER));
+
+    @Override
+    protected boolean onKeyEvent(android.view.KeyEvent e) {
+        int code = e.getKeyCode();
+        if (PLAIN.contains(code)) return false;
+        if (e.getAction() == android.view.KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0)
+            android.util.Log.i("TVHW", "key " + code + " " + android.view.KeyEvent.keyCodeToString(code) + " scan=" + e.getScanCode());
+        String pkg = getSharedPreferences("home", MODE_PRIVATE).getString("key." + code, null);
+        if (pkg == null) return false;
+        if (e.getAction() == android.view.KeyEvent.ACTION_UP) {
+            try {
+                android.content.Intent it = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+                if (it == null) it = getPackageManager().getLaunchIntentForPackage(pkg);
+                if (it != null) startActivity(it.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (Exception ignored) { }
+        }
+        return true;
+    }
+
     /** True while the system has this service bound; the home screen re-enables it when it is not. */
     static volatile boolean running;
 

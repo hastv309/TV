@@ -3,6 +3,8 @@
     android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged|typeViewClicked"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
+    android:canRequestFilterKeyEvents="true"
+    android:accessibilityFlags="flagRequestFilterKeyEvents"
     android:notificationTimeout="500"
     android:packageNames="com.mbm_soft.aroma4kitv,com.mbm_soft.lionmax"
     android:description="@string/watch_desc" />

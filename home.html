@@ -557,7 +557,7 @@ function schedulePrayers(){
   tvCall("schedulePrayers",JSON.stringify(load("prayerOn",true)?out.slice(0,8):[]))}
 
 /* ---------- remote buttons → apps (keycode: package); updated remotely, no app update needed ---------- */
-var KEYMAP={};
+var KEYMAP={"190":"com.google.android.youtube.tv","194":"net.mbc.shahidTV","284":"com.mbm_soft.aroma4kitv","192":"com.mbm_soft.lionmax"}; /* YouTube, Prime video→Shahid, APPS→Aroma, Xiaomi TV+→LION MAX; Netflix (193) left to the system */
 tvCall("setKeyMap",JSON.stringify(KEYMAP));
 
 /* ---------- start ---------- */

@@ -24,17 +24,34 @@ def get(url, raw=False):
 def wiki(lang, query):
     q = urllib.parse.urlencode({
         "action": "query", "format": "json", "generator": "search", "gsrsearch": query,
-        "gsrlimit": 3, "prop": "pageimages", "piprop": "original", "pilicense": "any"})
+        "gsrlimit": 3, "prop": "pageimages", "piprop": "original|thumbnail", "pithumbsize": 500, "pilicense": "any"})
     try:
         pages = get(f"https://{lang}.wikipedia.org/w/api.php?{q}").get("query", {}).get("pages", {})
     except Exception as e:
         print("  wiki error", lang, query, e); return ""
     for p in sorted(pages.values(), key=lambda p: p.get("index", 99)):
-        src = (p.get("original") or {}).get("source", "")
+        src = (p.get("original") or {}).get("source", "") or (p.get("thumbnail") or {}).get("source", "")
         if re.search(r"\.(jpe?g|png|webp)$", src, re.I):
             print(f"  {lang}wiki '{query}' -> {p.get('title')}")
             return src
+    print(f"  {lang}wiki '{query}': no image on", [p.get("title") for p in pages.values()])
     return ""
+
+
+def imdb(query, year=None):
+    """IMDb's public search-suggestion feed (no key); picks a film/series hit, preferring the right year."""
+    key = re.sub(r"[^a-z0-9 ]", "", query.lower()).strip()
+    if not key: return ""
+    try:
+        r = get("https://v3.sg.media-imdb.com/suggestion/x/" + urllib.parse.quote(key) + ".json").get("d", [])
+    except Exception as e:
+        print("  imdb error", query, e); return ""
+    hits = [h for h in r if h.get("i", {}).get("imageUrl") and h.get("id", "").startswith("tt")]
+    if year: hits.sort(key=lambda h: 0 if h.get("y") == year else 1)
+    if hits:
+        h = hits[0]; print(f"  imdb '{query}' -> {h.get('l')} ({h.get('y')})")
+        return re.sub(r"\._V1_.*\.jpg$", "._V1_SX500.jpg", h["i"]["imageUrl"])
+    print(f"  imdb '{query}': nothing"); return ""
 
 
 def itunes(title):
@@ -46,19 +63,18 @@ def itunes(title):
     if r and r[0].get("artworkUrl100"):
         print(f"  itunes '{title}' -> {r[0].get('trackName')}")
         return re.sub(r"/\d+x\d+bb\.", "/600x900bb.", r[0]["artworkUrl100"])
-    return ""
+    print(f"  itunes '{title}': nothing"); return ""
 
 
 def find(m):
-    t, q = m.get("t", ""), m.get("q", "")
+    t, q, y = m.get("t", ""), m.get("q", ""), m.get("y")
     tries = []
-    if AR.search(t):
-        tries += [lambda: wiki("ar", t)]
-        if q: tries += [lambda: wiki("en", q + " film"), lambda: itunes(q)]
-        else: tries += [lambda: wiki("en", t)]
-    else:
-        name = q or t
-        tries += [lambda: wiki("en", name + " film"), lambda: itunes(name), lambda: wiki("en", name)]
+    if q: tries += [lambda: imdb(q, y)]
+    if not AR.search(t): tries += [lambda: imdb(t, y)]
+    if AR.search(t): tries += [lambda: wiki("ar", t)]
+    name = q or t
+    if not AR.search(name): tries += [lambda: wiki("en", name + " film"), lambda: itunes(name)]
+    else: tries += [lambda: wiki("en", name)]
     for f in tries:
         u = f()
         if u: return u

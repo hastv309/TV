@@ -164,7 +164,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 </footer>
 
 <section class="movies" id="movies">
-  <div class="h">WEEKEND PICKS <small id="pkNote">· اختيارات الويكند، تتجدد كل خميس</small></div>
+  <div class="h">WEEKEND PICKS</div>
   <div class="picks" id="picks"></div>
   <div class="pinfo" id="pinfo"><span class="t"></span><span class="m"></span></div>
   <div class="tops" id="tops"></div>
@@ -373,7 +373,7 @@ function renderMovies(){
     tops.appendChild(panel)})}
 function pickInfo(c){var m=pickItems[c],el=$("pinfo");if(!el)return;if(!m){el.hidden=true;return}el.hidden=false;
   el.querySelector(".t").textContent=m.t;el.querySelector(".t").dir="auto";
-  el.querySelector(".m").textContent=[m.r?"IMDb "+m.r:"",m.y,m.rt,PLAT[m.p]?PLAT[m.p].name:""].filter(Boolean).join(" · ")}
+  el.querySelector(".m").textContent=[m.r?"IMDb "+m.r:"",m.y,m.rt].filter(Boolean).join(" · ")}
 function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT[PICK_DEF];rememberOpen(p.pkg);if(tvCall("launch",p.pkg)===false)toast("Could not open "+p.name)}
 
 function loadData(){

@@ -76,16 +76,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .pinfo .t{font-size:30px;font-weight:700;font-family:var(--f-ui),var(--f-ar)}
 .pinfo .m{font-size:18px;color:var(--soft);direction:ltr}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.tops{display:flex;gap:28px;margin-top:34px}
-.tp{flex:1 1 0;min-width:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:24px 28px}
-.tp .hd{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:.14em;margin-bottom:16px}
 .items{display:flex;gap:12px}
-.it{flex:1 1 0;min-width:0;display:flex;gap:10px;align-items:center;border-radius:14px;padding:6px;transition:transform .12s}
-.it .num{font-size:58px;font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.55);width:30px;flex:none}
-.it .ps{width:86px;height:128px;border-radius:12px;flex:none;background:#222 center/cover no-repeat}
-.it .n{overflow-wrap:break-word;font-size:19px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.it .g{font-size:15px;color:var(--faint);margin-top:4px}
-.it.f{outline:3px solid #fff;transform:scale(1.04)}
 
 /* clean sweep */
 .sweep{position:fixed;top:0;bottom:0;left:0;width:520px;pointer-events:none;opacity:0;transform:translateX(-600px);
@@ -167,7 +158,6 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
   <div class="h">WEEKEND PICKS</div>
   <div class="picks" id="picks"></div>
   <div class="pinfo" id="pinfo"><span class="t"></span><span class="m"></span></div>
-  <div class="tops" id="tops"></div>
 </section>
 </div>
 
@@ -328,8 +318,8 @@ function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
 
 /* ---------- shared data (fixtures, movies) from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
-/* ---------- movies page: weekend picks + top 3 on each platform (data.json → movies) ---------- */
-var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"},ar:{pkg:"com.mbm_soft.aroma4kitv",name:"Aroma",c:"#5a6b7a"},lm:{pkg:"com.mbm_soft.lionmax",name:"LionMax",c:"#b08a2e"}};
+/* ---------- movies page: weekend picks (data.json → movies.picks; Netflix/Shahid top lists live on the screensaver) ---------- */
+var pickItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"},ar:{pkg:"com.mbm_soft.aroma4kitv",name:"Aroma",c:"#5a6b7a"},lm:{pkg:"com.mbm_soft.lionmax",name:"LionMax",c:"#b08a2e"}};
 /* picks: 9 posters in one right-to-left row, 3 per genre (COMEDY, ACTION, THRILLER), Arabic first in each; "p" optional (nf|sh|ar|lm), no p = open Aroma */
 var PICK_DEF="ar",PICK_GROUPS=[["COMEDY","كوميدي","#d08a2e"],["ACTION","أكشن","#d04545"],["THRILLER","إثارة وتشويق","#5a6fc4"]];
 function bgUrl(el,u){if(u)el.style.backgroundImage='url("'+u.replace(/"/g,"")+'")'}
@@ -373,20 +363,7 @@ function renderMovies(){
       g.querySelector(".row").appendChild(e);pickItems.push(m)});
     box.appendChild(g)});
   pickInfo(0);
-  $("movies").querySelector(".h").hidden=!pickItems.length;
-  var tops=$("tops");tops.innerHTML="";topItems=[];
-  [["nf","NETFLIX · TOP 3 IN KSA"],["sh","SHAHID · TOP 3"]].forEach(function(k){
-    var list=(M[k[0]]&&M[k[0]].length)?M[k[0]]:((DATA.trends&&DATA.trends[k[0]])||[]).map(function(x){return{t:x}});
-    list=list.slice(0,3);if(!list.length)return;var p=PLAT[k[0]];
-    var panel=document.createElement("div");panel.className="tp";
-    panel.innerHTML='<div class="hd"><i class="dot"></i><span></span></div><div class="items"></div>';
-    panel.querySelector(".dot").style.background=p.c;panel.querySelector(".hd span").textContent=k[1];
-    list.forEach(function(m,n){var it=document.createElement("div");it.className="it";
-      it.innerHTML='<span class="num"></span><div class="ps"></div><div style="min-width:0"><div class="n"></div><div class="g"></div></div>';
-      it.querySelector(".num").textContent=n+1;var ps=it.querySelector(".ps");ps.style.background="linear-gradient(160deg,"+p.c+",#120e16)";ps.style.backgroundSize="cover";poster(ps,m);
-      it.querySelector(".n").textContent=m.t;it.querySelector(".n").dir="auto";it.querySelector(".g").textContent=m.g||"Film";
-      panel.querySelector(".items").appendChild(it);topItems.push({t:m.t,p:k[0]})});
-    tops.appendChild(panel)})}
+  $("movies").querySelector(".h").hidden=!pickItems.length;}
 function pickInfo(c){var m=pickItems[c],el=$("pinfo");if(!el)return;if(!m){el.hidden=true;return}el.hidden=false;
   el.querySelector(".t").textContent=m.t;el.querySelector(".t").dir="auto";
   el.querySelector(".m").textContent=[m.r?"IMDb "+m.r:"",m.y,m.rt].filter(Boolean).join(" · ")}
@@ -436,13 +413,13 @@ function setGlow(hex){
 function shade(hex,f){var n=parseInt(hex.slice(1),16),r=(n>>16)*f|0,g=(n>>8&255)*f|0,b=(n&255)*f|0;return"rgb("+r+","+g+","+b+")"}
 
 /* ---------- focus and remote control ---------- */
-/* rows: 0 buttons, 1 apps, 2 continue note, 3 weekend picks, 4 top lists */
+/* rows: 0 buttons, 1 apps, 2 continue note, 3 weekend picks */
 var focus={row:1,col:0},menuState=null,glowT=null,lastMove=0;
-function rowLen(r){if(r===0)return BTNS.length;if(r===1)return appCount();if(r===2)return $("secCW").hidden?0:cwItems.length;if(r===3)return pickItems.length;if(r===4)return topItems.length;return 0}
+function rowLen(r){if(r===0)return BTNS.length;if(r===1)return appCount();if(r===2)return $("secCW").hidden?0:cwItems.length;if(r===3)return pickItems.length;return 0}
 function paintFocus(){
   document.querySelectorAll(".f").forEach(function(e){if(!e.closest(".menu"))e.classList.remove("f")});
   var r=focus.row,c=focus.col,el=null;
-  if(r===0)el=$("btns").children[c];if(r===1)el=$("apps").children[c];if(r===2)el=$("cw").children[c];if(r===3){el=$("picks").querySelectorAll(".pk")[c];pickInfo(c)}if(r===4)el=$("tops").querySelectorAll(".it")[c];
+  if(r===0)el=$("btns").children[c];if(r===1)el=$("apps").children[c];if(r===2)el=$("cw").children[c];if(r===3){el=$("picks").querySelectorAll(".pk")[c];pickInfo(c)}
   if(el)el.classList.add("f");
   /* name + glow follow the focused app / item */
   var a=null;if(r===1)a=shownApps[c];if(r===2&&cwItems[c])a=apps.filter(function(x){return x.pkg===cwItems[c].pkg})[0];
@@ -452,8 +429,8 @@ function paintFocus(){
   [["apps",1,264]].forEach(function(x){var row=$(x[0]),shift=0;if(focus.row===x[1]){var vis=Math.floor((1728)/x[2]);shift=Math.max(0,focus.col-vis+2)*x[2]}else return;row.style.transform="translateX("+(-shift)+"px)"});
   /* vertical scroll: the movies page sits below the home screen */
   $("page").style.transform=focus.row>=3?"translateY(-1080px)":"translateY(0)"}
-/* vertical order on screen: buttons(0) → note(2, a vertical list) → apps(1) → picks(3) → top lists(4) */
-var ORDER=[0,2,1,3,4];
+/* vertical order on screen: buttons(0) → note(2, a vertical list) → apps(1) → picks(3) */
+var ORDER=[0,2,1,3];
 function moveFocus(dr,dc){
   var r=focus.row,nn=rowLen(2);
   if(r===2&&dr){var c=focus.col+dr;if(c>=0&&c<nn){focus.col=c;paintFocus();return}}
@@ -476,8 +453,7 @@ function activate(long){
       openMenu(a.label,[["Move left",function(){moveApp(c,-1)}],["Move right",function(){moveApp(c,1)}],[hid?"Show on home":"Hide from home",function(){toggleHide(c)}]])}
     else launchApp(c)}
   else if(r===2)openCW(c);
-  else if(r===3)openMovie(pickItems[c]);
-  else if(r===4)openMovie(topItems[c])}
+  else if(r===3)openMovie(pickItems[c])}
 function openMenu(title,opts){menuState={opts:opts,i:0};$("mTitle").textContent=title;var b=$("mOpts");b.innerHTML="";
   opts.forEach(function(o,i){var d=document.createElement("div");d.className="opt"+(i?"":" f");d.textContent=o[0];b.appendChild(d)});$("menu").hidden=false}
 function closeMenu(){menuState=null;$("menu").hidden=true}

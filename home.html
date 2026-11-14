@@ -333,17 +333,33 @@ var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:
 /* picks: 9 posters in one right-to-left row, 3 per genre (COMEDY, ACTION, THRILLER), Arabic first in each; "p" optional (nf|sh|ar|lm), no p = open Aroma */
 var PICK_DEF="ar",PICK_GROUPS=[["COMEDY","كوميدي","#d08a2e"],["ACTION","أكشن","#d04545"],["THRILLER","إثارة وتشويق","#5a6fc4"]];
 function bgUrl(el,u){if(u)el.style.backgroundImage='url("'+u.replace(/"/g,"")+'")'}
-/* posters: data.json may carry "img"; otherwise ask Apple's public movie search (JSONP, no key) once and cache it */
-var posterCache=load("posters",{}),jsonpN=0;
-function findPoster(title,cb){
-  if(!title)return;var k=title.toLowerCase();if(posterCache[k]!==undefined){if(posterCache[k])cb(posterCache[k]);return}
-  var name="__pc"+(jsonpN++),sc=document.createElement("script"),done=false;
-  window[name]=function(j){done=true;var r=j&&j.results&&j.results[0],u=r&&r.artworkUrl100?r.artworkUrl100.replace(/\/\d+x\d+bb\./,"/600x900bb."):"";
-    posterCache[k]=u;save("posters",posterCache);if(u)cb(u);delete window[name];sc.remove()};
-  sc.onerror=function(){delete window[name];sc.remove()};
-  sc.src="https://itunes.apple.com/search?media=movie&entity=movie&limit=1&country=sa&term="+encodeURIComponent(title)+"&callback="+name;
-  document.head.appendChild(sc)}
-function poster(el,m){if(m.img){bgUrl(el,m.img);return}findPoster(m.q||m.t,function(u){bgUrl(el,u)})}
+/* posters: data.json may carry "img"; otherwise look it up once and cache it.
+   Order: Wikipedia's poster (Arabic Wikipedia for Arabic titles, English for the rest), then Apple's US movie store
+   (the old Saudi-store-only lookup kept coming back empty, and misses were cached forever). Misses now retry after 12 hours. */
+var posterCache=load("posters2",{}),jsonpN=0,MISS_MS=12*3600000;
+function jsonp(url,cb){var name="__pc"+(jsonpN++),sc=document.createElement("script"),done=false;
+  var t=setTimeout(function(){fin(null)},8000);
+  function fin(j){if(done)return;done=true;clearTimeout(t);try{delete window[name]}catch(e){window[name]=undefined}sc.remove();cb(j)}
+  window[name]=fin;sc.onerror=function(){fin(null)};sc.src=url+(url.indexOf("?")<0?"?":"&")+"callback="+name;document.head.appendChild(sc)}
+function itunesPoster(title,cb){
+  jsonp("https://itunes.apple.com/search?media=movie&entity=movie&limit=1&country=us&term="+encodeURIComponent(title),function(j){
+    var r=j&&j.results&&j.results[0];cb(r&&r.artworkUrl100?r.artworkUrl100.replace(/\/\d+x\d+bb\./,"/600x900bb."):"")})}
+function wikiPoster(lang,q,cb){
+  fetch("https://"+lang+".wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=1&gsrsearch="+encodeURIComponent(q)+
+    "&prop=pageimages&piprop=thumbnail&pithumbsize=600&pilicense=any").then(function(r){return r.json()}).then(function(j){
+    var pg=j&&j.query&&j.query.pages,u="";if(pg)for(var id in pg){if(pg[id].thumbnail){u=pg[id].thumbnail.source;break}}cb(u)}).catch(function(){cb("")})}
+function findPoster(title,cb,alt){
+  if(!title)return;var k=title.toLowerCase(),c=posterCache[k];
+  if(typeof c==="string"&&c){cb(c);return}
+  if(c&&c.miss&&Date.now()-c.miss<MISS_MS)return;
+  var AR=/[\u0600-\u06FF]/,steps=[];
+  if(alt&&AR.test(alt))steps.push(function(n){wikiPoster("ar",alt,n)});
+  if(AR.test(title)){steps.push(function(n){wikiPoster("ar",title,n)});steps.push(function(n){wikiPoster("en",title,n)})}
+  else{steps.push(function(n){wikiPoster("en",title+" film",n)});steps.push(function(n){itunesPoster(title,n)})}
+  (function run(i){if(i>=steps.length){posterCache[k]={miss:Date.now()};save("posters2",posterCache);return}
+    steps[i](function(u){if(u){posterCache[k]=u;save("posters2",posterCache);cb(u)}else run(i+1)})})(0)}
+try{localStorage.removeItem("posters")}catch(e){}
+function poster(el,m){if(m.img){bgUrl(el,m.img);return}findPoster(m.q||m.t,function(u){bgUrl(el,u)},m.q?m.t:"")}
 function renderMovies(){
   var M=DATA.movies||{},box=$("picks");box.innerHTML="";pickItems=[];
   PICK_GROUPS.forEach(function(gr){var list=(M.picks||[]).filter(function(m){return m.g===gr[0]}).slice(0,3);if(!list.length)return;
@@ -353,7 +369,7 @@ function renderMovies(){
       e.style.background="linear-gradient(160deg,"+gr[2]+",#120e16 85%)";e.style.backgroundSize="cover";e.style.backgroundPosition="center";
       var l=document.createElement("div");l.className="lab";l.textContent=m.q||m.t;l.dir="auto";e.appendChild(l);
       if(m.ar){var ab=document.createElement("span");ab.className="ab";ab.textContent="عربي";e.appendChild(ab)}
-      if(m.img){bgUrl(e,m.img);e.classList.add("has")}else findPoster(m.q||m.t,function(u){bgUrl(e,u);e.classList.add("has")});
+      if(m.img){bgUrl(e,m.img);e.classList.add("has")}else findPoster(m.q||m.t,function(u){bgUrl(e,u);e.classList.add("has")},m.q?m.t:"");
       g.querySelector(".row").appendChild(e);pickItems.push(m)});
     box.appendChild(g)});
   pickInfo(0);

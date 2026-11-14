@@ -146,7 +146,8 @@
     "why": "أحمد حلمي راجع لمصر بعد سنين برّا ويتورّط بكل شي، كوميديا خفيفة وتضحك من القلب.",
     "r": "7.6",
     "y": 2010,
-    "rt": ""
+    "rt": "",
+    "img": "https://hastv309.github.io/TV/posters/7e4da433938a.jpg"
    },
    {
     "t": "The Fundamentals of Caring",
@@ -156,7 +157,8 @@
     "p": "nf",
     "r": "7.3",
     "y": 2016,
-    "rt": "1h 37m"
+    "rt": "1h 37m",
+    "img": "https://hastv309.github.io/TV/posters/89c090e2cca8.jpg"
    },
    {
     "t": "Paddington 2",
@@ -165,7 +167,8 @@
     "why": "الدب بادينغتون يتورط في سرقة ما سواها، فيلم لطيف ومضحك يناسب العايلة كلها.",
     "r": "7.8",
     "y": 2017,
-    "rt": "1h 43m"
+    "rt": "1h 43m",
+    "img": "https://hastv309.github.io/TV/posters/75000dd9573e.jpg"
    },
    {
     "t": "الممر",
@@ -175,7 +178,8 @@
     "why": "عملية كوماندوز مصرية خلف خطوط العدو، معارك ضخمة وإنتاج ما تعودنا عليه عربياً.",
     "r": "7.6",
     "y": 2019,
-    "rt": "2h 30m"
+    "rt": "2h 30m",
+    "img": "https://hastv309.github.io/TV/posters/eecf7f58b836.jpg"
    },
    {
     "t": "Mission: Impossible - Fallout",
@@ -185,7 +189,8 @@
     "p": "nf",
     "r": "7.7",
     "y": 2018,
-    "rt": "2h 27m"
+    "rt": "2h 27m",
+    "img": "https://hastv309.github.io/TV/posters/d4af0227474b.jpg"
    },
    {
     "t": "Top Gun: Maverick",
@@ -194,7 +199,8 @@
     "why": "مشاهد طيران حقيقية تحبس الأنفاس وتوم كروز بأحلى حالاته، أكشن يرفع الحماس.",
     "r": "8.2",
     "y": 2022,
-    "rt": "2h 10m"
+    "rt": "2h 10m",
+    "img": "https://hastv309.github.io/TV/posters/8d7c734c42b4.jpg"
    },
    {
     "t": "تراب الماس",
@@ -204,7 +210,8 @@
     "why": "جريمة غامضة تفتح ملفات فساد قديمة، تشويق مصري متقن يمسكك للآخر.",
     "r": "7.5",
     "y": 2018,
-    "rt": "2h 42m"
+    "rt": "2h 42m",
+    "img": "https://hastv309.github.io/TV/posters/65728e338d47.jpg"
    },
    {
     "t": "Inside Man",
@@ -214,7 +221,8 @@
     "p": "nf",
     "r": "7.6",
     "y": 2006,
-    "rt": "2h 9m"
+    "rt": "2h 9m",
+    "img": "https://hastv309.github.io/TV/posters/d2f30f39174a.jpg"
    },
    {
     "t": "The Invisible Guest",
@@ -223,19 +231,23 @@
     "why": "رجل أعمال متهم بجريمة وعنده ليلة وحدة يثبت براءته، والنهاية تقلب كل شي.",
     "r": "8.0",
     "y": 2016,
-    "rt": "1h 46m"
+    "rt": "1h 46m",
+    "img": "https://hastv309.github.io/TV/posters/ddc9ed75a7a0.jpg"
    }
   ],
   "nf": [
    {
     "t": "Collision Course",
-    "g": "Thriller"
+    "g": "Thriller",
+    "img": "https://hastv309.github.io/TV/posters/fc76c9b4f4d5.jpg"
    },
    {
-    "t": "Heist"
+    "t": "Heist",
+    "img": "https://hastv309.github.io/TV/posters/9e8ea131c0d3.jpg"
    },
    {
-    "t": "Crazy Rich, Incredibly Broke"
+    "t": "Crazy Rich, Incredibly Broke",
+    "img": "https://hastv309.github.io/TV/posters/260744f9b7f7.jpg"
    }
   ],
   "sh": [

@@ -47,7 +47,7 @@ def imdb(query, year=None):
     except Exception as e:
         print("  imdb error", query, e); return ""
     hits = [h for h in r if h.get("i", {}).get("imageUrl") and h.get("id", "").startswith("tt")]
-    if year: hits.sort(key=lambda h: 0 if h.get("y") == year else 1)
+    if year: hits.sort(key=lambda h: (h.get("y") != year, h.get("qid") not in ("movie", "tvMovie")))
     if hits:
         h = hits[0]; print(f"  imdb '{query}' -> {h.get('l')} ({h.get('y')})")
         return re.sub(r"\._V1_.*\.jpg$", "._V1_SX500.jpg", h["i"]["imageUrl"])

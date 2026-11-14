@@ -61,19 +61,19 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground);co
 .fcard .s{font-size:16px;color:var(--faint);margin-top:6px}
 
 /* movies page (below the home screen) */
-.movies{position:absolute;left:96px;right:96px;top:1210px}
+.movies{position:absolute;left:96px;right:96px;top:1150px}
 .movies .h small{letter-spacing:.04em;font-weight:400;color:var(--faint);font-size:17px;font-family:var(--f-ar)}
-.picks{display:flex;gap:28px}
-.pk{width:556px;height:340px;border-radius:24px;position:relative;overflow:hidden;flex:none;background:#1a1620 center/cover no-repeat;transition:transform .12s ease-out}
+.picks{display:grid;grid-template-columns:repeat(3,556px);gap:18px 28px}
+.pk{width:556px;height:190px;border-radius:24px;position:relative;overflow:hidden;flex:none;background:#1a1620 center/cover no-repeat;transition:transform .12s ease-out}
 .pk:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,6,10,.94) 32%,rgba(8,6,10,.15) 80%)}
-.pk .in{position:absolute;left:30px;top:28px;bottom:26px;width:340px;display:flex;flex-direction:column;z-index:1}
-.pk .tag{align-self:flex-start;font-size:15px;font-weight:700;letter-spacing:.1em;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16)}
-.pk .t{text-align:left;font-size:38px;font-weight:700;margin-top:16px;line-height:1.15;font-family:var(--f-ui),var(--f-ar)}
-.pk .why{text-align:left;font-family:var(--f-ar);font-size:18px;color:var(--soft);margin-top:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.pk .meta{margin-top:auto;font-size:17px;color:var(--soft);display:flex;gap:10px;align-items:center}
+.pk .in{position:absolute;left:26px;top:18px;bottom:16px;width:370px;display:flex;flex-direction:column;z-index:1}
+.pk .tag{align-self:flex-start;font-size:13px;font-weight:700;letter-spacing:.1em;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16)}
+.pk .t{text-align:left;font-size:27px;font-weight:700;margin-top:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-ui),var(--f-ar)}
+.pk .why{text-align:left;font-family:var(--f-ar);font-size:16px;color:var(--soft);margin-top:4px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pk .meta{margin-top:auto;font-size:15px;color:var(--soft);display:flex;gap:10px;align-items:center}
 .pk.f{transform:scale(1.03);outline:4px solid #fff;outline-offset:-1px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.tops{display:flex;gap:28px;margin-top:64px}
+.tops{display:flex;gap:28px;margin-top:34px}
 .tp{flex:1 1 0;min-width:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:24px 28px}
 .tp .hd{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:.14em;margin-bottom:16px}
 .items{display:flex;gap:12px}
@@ -325,7 +325,9 @@ function openCW(i){var it=cwItems[i];if(!it)return;rememberOpen(it.pkg);
 /* ---------- shared data (fixtures, movies) from data.json ---------- */
 var DATA={trends:{nf:[],sh:[]},fixtures:[]};
 /* ---------- movies page: weekend picks + top 3 on each platform (data.json → movies) ---------- */
-var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"}};
+var pickItems=[],topItems=[],PLAT={nf:{pkg:"com.netflix.ninja",name:"Netflix",c:"#e5484d"},sh:{pkg:"net.mbc.shahidTV",name:"Shahid",c:"#3ec7b0"},ar:{pkg:"com.mbm_soft.aroma4kitv",name:"Aroma",c:"#5a6b7a"},lm:{pkg:"com.mbm_soft.lionmax",name:"LionMax",c:"#b08a2e"}};
+/* picks: 9 films, 3 per genre (COMEDY, ACTION, THRILLER), Arabic first in each; "p" optional (nf|sh|ar|lm), no p = open Aroma */
+var PICK_DEF="ar";
 function bgUrl(el,u){if(u)el.style.backgroundImage='url("'+u.replace(/"/g,"")+'")'}
 /* posters: data.json may carry "img"; otherwise ask Apple's public movie search (JSONP, no key) once and cache it */
 var posterCache=load("posters",{}),jsonpN=0;
@@ -339,15 +341,15 @@ function findPoster(title,cb){
   document.head.appendChild(sc)}
 function poster(el,m){if(m.img){bgUrl(el,m.img);return}findPoster(m.q||m.t,function(u){bgUrl(el,u)})}
 function renderMovies(){
-  var M=DATA.movies||{},box=$("picks");box.innerHTML="";pickItems=(M.picks||[]).slice(0,3);
-  pickItems.forEach(function(m){var p=PLAT[m.p]||PLAT.nf,e=document.createElement("div");e.className="pk";
+  var M=DATA.movies||{},box=$("picks");box.innerHTML="";pickItems=(M.picks||[]).slice(0,9);
+  pickItems.forEach(function(m){var p=PLAT[m.p]||PLAT[PICK_DEF],e=document.createElement("div");e.className="pk";
     e.style.background="linear-gradient(135deg,"+p.c+",#120e16 70%)";e.style.backgroundSize="cover";e.style.backgroundPosition="right center";poster(e,m);
     var i=document.createElement("div");i.className="in";
     var tg=document.createElement("span");tg.className="tag";tg.textContent=(m.g||"")+(m.ar?" · ARABIC":"");
     var t=document.createElement("div");t.className="t";t.textContent=m.t;t.dir="auto";
     var w=document.createElement("div");w.className="why";w.textContent=m.why||"";w.dir="rtl";
     var me=document.createElement("div");me.className="meta";me.innerHTML='<i class="dot"></i><span></span>';me.firstChild.style.background=p.c;
-    me.lastChild.textContent=[p.name,m.r?"IMDb "+m.r:"",m.y,m.rt].filter(Boolean).join(" · ");
+    me.lastChild.textContent=[PLAT[m.p]?p.name:"",m.r?"IMDb "+m.r:"",m.y,m.rt].filter(Boolean).join(" · ");
     i.appendChild(tg);i.appendChild(t);i.appendChild(w);i.appendChild(me);e.appendChild(i);box.appendChild(e)});
   $("movies").querySelector(".h").hidden=!pickItems.length;
   var tops=$("tops");tops.innerHTML="";topItems=[];
@@ -363,7 +365,7 @@ function renderMovies(){
       it.querySelector(".n").textContent=m.t;it.querySelector(".n").dir="auto";it.querySelector(".g").textContent=m.g||"Film";
       panel.querySelector(".items").appendChild(it);topItems.push({t:m.t,p:k[0]})});
     tops.appendChild(panel)})}
-function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT.nf;rememberOpen(p.pkg);if(tvCall("launch",p.pkg)===false)toast("Could not open "+p.name)}
+function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT[PICK_DEF];rememberOpen(p.pkg);if(tvCall("launch",p.pkg)===false)toast("Could not open "+p.name)}
 
 function loadData(){
   var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
@@ -431,8 +433,11 @@ function moveFocus(dr,dc){
   var r=focus.row,nn=rowLen(2);
   if(r===2&&dr){var c=focus.col+dr;if(c>=0&&c<nn){focus.col=c;paintFocus();return}}
   if(r===2&&dc)return;
+  if(r===3&&dc){var g=focus.col-focus.col%3;focus.col=Math.max(g,Math.min(Math.min(g+2,rowLen(3)-1),focus.col+dc));paintFocus();return}
+  if(r===3&&dr){var c3=focus.col+dr*3;if(c3>=0&&c3<rowLen(3)){focus.col=c3;paintFocus();return}}
   if(dr){var i=ORDER.indexOf(r);do{i+=dr}while(i>=0&&i<ORDER.length&&!rowLen(ORDER[i]));if(i<0||i>=ORDER.length)return;
-    var nr=ORDER[i];focus.row=nr;focus.col=nr===2?(dr>0?0:nn-1):Math.min(nr===1&&r===2?0:focus.col,rowLen(nr)-1)}
+    var nr=ORDER[i],col=r===3?focus.col%3:focus.col;if(nr===3){var n3=rowLen(3);col=Math.min(col,2);if(dr<0)col=Math.min(n3-1,Math.floor((n3-1)/3)*3+col)}
+    focus.row=nr;focus.col=nr===2?(dr>0?0:nn-1):Math.min(nr===1&&r===2?0:col,rowLen(nr)-1)}
   else{focus.col=Math.max(0,Math.min(rowLen(focus.row)-1,focus.col+dc))}
   paintFocus()}
 function activate(long){

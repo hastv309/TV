@@ -1,0 +1,42 @@
+name: Movie posters
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data.json'
+      - '.github/scripts/posters.py'
+      - '.github/workflows/posters.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: posters
+  cancel-in-progress: false
+
+jobs:
+  posters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch posters
+        run: |
+          pip install --quiet pillow
+          python .github/scripts/posters.py
+
+      - name: Commit
+        run: |
+          git add data.json posters
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git config user.name "hastv309"
+          git config user.email "hastv309@users.noreply.github.com"
+          git commit -m "Movie posters"
+          for i in 1 2 3; do git push && exit 0; git pull --rebase; done
+          exit 1

@@ -83,6 +83,8 @@ public class MainActivity extends Activity {
                 if (request.isForMainFrame() && !usingFallback) {
                     usingFallback = true;
                     view.loadUrl(FALLBACK_URL);
+                    // the offline copy is only a stand-in: try the live page again shortly
+                    view.postDelayed(MainActivity.this::retryOnline, 20_000);
                 }
             }
         };
@@ -119,6 +121,20 @@ public class MainActivity extends Activity {
         web.loadUrl(HOME_URL + "?d=" + (System.currentTimeMillis() / 3600000L));
     }
 
+    /** Back to the live page after the offline fallback (Wi-Fi may not be ready right after waking). */
+    void retryOnline() {
+        if (!usingFallback || web == null) return;
+        android.net.ConnectivityManager cm = (android.net.ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo ni = cm == null ? null : cm.getActiveNetworkInfo();
+        if (ni != null && ni.isConnected()) {
+            usingFallback = false;
+            loadedAt = System.currentTimeMillis();
+            web.loadUrl(HOME_URL + "?d=" + (System.currentTimeMillis() / 3600000L) + "&r=" + (System.currentTimeMillis() / 1000L));
+        } else {
+            web.postDelayed(this::retryOnline, 20_000);
+        }
+    }
+
     void js(String code) {
         if (web != null) web.post(() -> web.evaluateJavascript(code, null));
     }
@@ -127,7 +143,8 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         // pick up page updates: reload when the page is more than an hour old
-        if (System.currentTimeMillis() - loadedAt > 3_600_000L) { buildWebView(); }
+        if (usingFallback) retryOnline();
+        else if (System.currentTimeMillis() - loadedAt > 3_600_000L) { buildWebView(); }
         js("window.onResumeHome&&onResumeHome()");
         // give the system a few seconds to bind the reader, then wake it if it is still off
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() ->

@@ -2,11 +2,11 @@
  "_note": "Shared by index.html (screensaver) and home.html (launcher). fixtures: [kickoff UTC, PL|CL, home EN, away EN, home AR, away AR, MENA TV channel EN]. movies: picks = 9 weekend picks, 3 per genre in order COMEDY, ACTION, THRILLER, Arabic film first in each {t,g,ar,why,r,y,rt,p?:nf|sh|ar|lm,img?,q?} (no p = any source, OK opens Aroma); nf/sh = top 3 films {t,g?,img?,q?}. img optional (poster URL); q optional English search title for the poster lookup.",
  "trends": {
   "nf": [
+   "Never Surrender",
    "Collision Course",
+   "Me Before You",
    "Heist",
-   "Crazy Rich, Incredibly Broke",
-   "The Hobbit: An Unexpected Journey",
-   "Shabab El Bomb 3"
+   "Crazy Rich, Incredibly Broke"
   ],
   "sh": [
    "راعي الأجرب",
@@ -24,7 +24,7 @@
    "Arsenal",
    "نيوكاسل",
    "أرسنال",
-   "beIN SPORTS"
+   "beIN SPORTS 1"
   ],
   [
    "2026-11-24T20:00Z",
@@ -127,12 +127,12 @@
   ]
  ],
  "movies": {
-  "updated": "2026-11-15",
+  "updated": "2026-11-19",
   "picks": [
    {
     "t": "برشامة",
     "q": "Bershama",
-    "g": "COMEDY",
+    "g": "ARABIC",
     "ar": true,
     "r": "7.1",
     "y": 2026,
@@ -141,35 +141,25 @@
     "img": "https://hastv309.github.io/TV/posters/a0d2a76213e2.jpg"
    },
    {
-    "t": "The Sheep Detectives",
-    "g": "COMEDY",
-    "ar": false,
-    "r": "7.3",
-    "y": 2026,
-    "rt": "1h 49m",
-    "d": "بعد مقتل الراعي الذي كان يقرأ لها روايات الجريمة، يقرر قطيع من الخراف حل اللغز بنفسه.",
-    "img": "https://hastv309.github.io/TV/posters/d59b0d4a91c4.jpg"
-   },
-   {
-    "t": "Toy Story 5",
-    "g": "COMEDY",
-    "ar": false,
-    "r": "7.3",
-    "y": 2026,
-    "rt": "1h 42m",
-    "d": "وودي وباز وجيسي في منافسة مع جهاز لوحي جديد يسرق اهتمام بوني منهم.",
-    "img": "https://hastv309.github.io/TV/posters/862af2ed94e7.jpg"
-   },
-   {
     "t": "أسد",
     "q": "Asad",
-    "g": "ACTION",
+    "g": "ARABIC",
     "ar": true,
     "r": "7.1",
     "y": 2026,
     "rt": "",
     "d": "ملحمة تاريخية أكشن بطولة محمد رمضان عن رجل يتمرد على الظلم ويقاتل من أجل حريته وحبه.",
     "img": "https://hastv309.github.io/TV/posters/8efa565ca60e.jpg"
+   },
+   {
+    "t": "الست",
+    "q": "El Sett",
+    "g": "ARABIC",
+    "ar": true,
+    "r": "7.5",
+    "y": 2025,
+    "rt": "",
+    "d": "منى زكي في سيرة كوكب الشرق أم كلثوم، من طفولتها في قرية ريفية إلى قمة المجد والطرب."
    },
    {
     "t": "The Odyssey",
@@ -190,6 +180,15 @@
     "rt": "",
     "d": "بيتر باركر يحارب الجريمة بدوام كامل في عالم نسي من يكون، ويواجه عدوًا جديدًا في الظل.",
     "img": "https://hastv309.github.io/TV/posters/454b9be04587.jpg"
+   },
+   {
+    "t": "The Mandalorian and Grogu",
+    "g": "ACTION",
+    "ar": false,
+    "r": "6.7",
+    "y": 2026,
+    "rt": "",
+    "d": "المندلوري وتلميذه الصغير غروغو في مهمة خطيرة جديدة لصالح الجمهورية في عالم حرب النجوم."
    },
    {
     "t": "Crime 101",
@@ -226,17 +225,17 @@
   ],
   "nf": [
    {
+    "t": "Never Surrender",
+    "g": "Action"
+   },
+   {
     "t": "Collision Course",
     "g": "Thriller",
     "img": "https://hastv309.github.io/TV/posters/fc76c9b4f4d5.jpg"
    },
    {
-    "t": "Heist",
-    "img": "https://hastv309.github.io/TV/posters/9e8ea131c0d3.jpg"
-   },
-   {
-    "t": "Crazy Rich, Incredibly Broke",
-    "img": "https://hastv309.github.io/TV/posters/260744f9b7f7.jpg"
+    "t": "Me Before You",
+    "g": "Romance"
    }
   ],
   "sh": [

@@ -159,7 +159,8 @@
     "r": "7.5",
     "y": 2025,
     "rt": "",
-    "d": "منى زكي في سيرة كوكب الشرق أم كلثوم، من طفولتها في قرية ريفية إلى قمة المجد والطرب."
+    "d": "منى زكي في سيرة كوكب الشرق أم كلثوم، من طفولتها في قرية ريفية إلى قمة المجد والطرب.",
+    "img": "https://hastv309.github.io/TV/posters/9955a528c5eb.jpg"
    },
    {
     "t": "The Odyssey",
@@ -188,7 +189,8 @@
     "r": "6.7",
     "y": 2026,
     "rt": "",
-    "d": "المندلوري وتلميذه الصغير غروغو في مهمة خطيرة جديدة لصالح الجمهورية في عالم حرب النجوم."
+    "d": "المندلوري وتلميذه الصغير غروغو في مهمة خطيرة جديدة لصالح الجمهورية في عالم حرب النجوم.",
+    "img": "https://hastv309.github.io/TV/posters/6cf0344fa75a.jpg"
    },
    {
     "t": "Crime 101",
@@ -226,7 +228,8 @@
   "nf": [
    {
     "t": "Never Surrender",
-    "g": "Action"
+    "g": "Action",
+    "img": "https://hastv309.github.io/TV/posters/f34f251909d4.jpg"
    },
    {
     "t": "Collision Course",
@@ -235,7 +238,8 @@
    },
    {
     "t": "Me Before You",
-    "g": "Romance"
+    "g": "Romance",
+    "img": "https://hastv309.github.io/TV/posters/1bbcc3d4cdfe.jpg"
    }
   ],
   "sh": [

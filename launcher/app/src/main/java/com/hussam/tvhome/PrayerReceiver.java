@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,18 +46,17 @@ public class PrayerReceiver extends BroadcastReceiver {
 
     static void show(Context c, String ar, String en, String time) {
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(c)) return;
+        pauseMedia(c);
         WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
         float dp = c.getResources().getDisplayMetrics().density;
 
         LinearLayout card = new LinearLayout(c);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setGravity(Gravity.CENTER_HORIZONTAL);
-        card.setPadding((int) (36 * dp), (int) (16 * dp), (int) (36 * dp), (int) (16 * dp));
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.argb(235, 18, 14, 22));
-        bg.setCornerRadius(28 * dp);
-        bg.setStroke((int) (1.5f * dp), Color.argb(150, 255, 210, 154));
-        card.setBackground(bg);
+        card.setPadding((int) (64 * dp), (int) (28 * dp), (int) (64 * dp), (int) (58 * dp));
+        card.setMinimumWidth((int) (520 * dp));
+        card.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        card.setBackground(new PrayerCardBg(dp));
 
         TextView t1 = new TextView(c);
         t1.setText("حان الآن موعد صلاة " + ar);
@@ -95,6 +93,15 @@ public class PrayerReceiver extends BroadcastReceiver {
     }
 
     static Context appCtx;
+
+    /** Pauses whatever is playing: media PAUSE key to the foreground app, plus taking audio focus. */
+    static void pauseMedia(Context c) {
+        try {
+            android.media.AudioManager am = (android.media.AudioManager) c.getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) am.requestAudioFocus(null, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.AUDIOFOCUS_GAIN);
+        } catch (Exception ignored) { }
+        new Thread(() -> { try { Adb.shell(c, "input keyevent 127"); } catch (Exception ignored) { } }).start();
+    }
 
     static void speak(Context c, String text) {
         appCtx = c.getApplicationContext();

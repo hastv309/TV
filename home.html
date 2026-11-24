@@ -398,9 +398,9 @@ function renderInfo(){
   var np=nextPrayer(now);if(np){$("pName").textContent=np.name;$("pWhen").textContent=ampm(np.h,np.m)+" · "+inMin(np.at-now)}
   /* match chip: only on match day (Riyadh date) */
   var mt=null,today=dayIndex(now);(DATA.fixtures||[]).forEach(function(f){var at=Date.parse(f[0]),di=dayIndex(at);
-    if(!mt&&at+2*36e5>now&&(di===today||di===today+1))mt={at:at,home:f[2],away:f[3],tv:f[6]||"",soon:di===today+1}});
+    if(!mt&&at+2*36e5>now&&(di===today||di===today+1))mt={at:at,home:f[2],away:f[3],tv:f[6]||"",cl:f[1]==="CL",soon:di===today+1}});
   if(mt){var k=rParts(mt.at),tag=now>=mt.at?"LIVE":mt.soon?"Tomorrow":"Today";
-    $("mText").textContent=tag+" · "+mt.home+" vs "+mt.away+" · "+hhmm(k.h,k.mi)+(mt.tv&&!mt.soon?" · "+mt.tv:"");
+    $("mText").textContent=tag+" · "+(mt.cl?"UCL · ":"")+mt.home+" vs "+mt.away+" · "+hhmm(k.h,k.mi)+(mt.tv&&!mt.soon?" · "+mt.tv:"");
     $("cMatch").classList.toggle("soon",mt.soon);$("cMatch").hidden=false}else $("cMatch").hidden=true}
 function wxIcon(c,day){if(c===0||c===1)return svg(day?ICONS.sun:ICONS.moon,' style="color:var(--glow)"');if(c>=51&&c<=82||c>=95)return svg(ICONS.rain);return svg(ICONS.cloud)}
 function wxText(c){if(c===0)return"Clear";if(c<=2)return"Partly cloudy";if(c===3)return"Cloudy";if(c===45||c===48)return"Fog";if(c>=51&&c<=67)return"Rain";if(c>=80&&c<=82)return"Showers";if(c>=95)return"Storm";return""}

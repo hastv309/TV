@@ -102,8 +102,8 @@ body.onPicks .pinfo{opacity:1}
 .viewport{overflow:visible;padding:18px 0 18px 18px;margin-left:-18px}
 
 /* sticky note: where you stopped (auto) */
-.note{position:absolute;right:96px;top:150px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.55);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);font-family:var(--f-ar);direction:rtl}
+.note{position:absolute;right:96px;top:150px;width:560px;padding:16px 18px 12px;border-radius:22px;background:rgba(18,16,24,.82);
+ border:1px solid rgba(255,255,255,.12);font-family:var(--f-ar);direction:rtl}
 .note .k{font-family:var(--f-ui);font-size:15px;font-weight:700;letter-spacing:.16em;color:var(--soft);margin:0 8px 6px;direction:ltr;text-align:right}
 .nt{display:flex;align-items:center;gap:12px;padding:6px 12px 6px 12px;padding-right:24px;border-radius:14px;transition:background .15s;position:relative}
 .nt:before{content:"";position:absolute;right:8px;top:10px;bottom:10px;width:5px;border-radius:3px;background:var(--c,#888)}
@@ -377,7 +377,7 @@ function openMovie(m){if(!m)return;var p=PLAT[m.p]||PLAT[PICK_DEF];rememberOpen(
 
 function loadData(){
   var base=/^https?:/.test(location.protocol)?"":"https://hastv309.github.io/TV/";
-  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){DATA=d;renderMovies();renderInfo();paintFocus()}).catch(function(){})}
+  fetch(base+"data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){netOk.d=1;DATA=d;renderMovies();renderInfo();paintFocus()}).catch(function(){})}
 
 /* ---------- clock, prayer, weather, match ---------- */
 var EN_WD=["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
@@ -406,7 +406,7 @@ function wxIcon(c,day){if(c===0||c===1)return svg(day?ICONS.sun:ICONS.moon,' sty
 function wxText(c){if(c===0)return"Clear";if(c<=2)return"Partly cloudy";if(c===3)return"Cloudy";if(c===45||c===48)return"Fog";if(c>=51&&c<=67)return"Rain";if(c>=80&&c<=82)return"Showers";if(c>=95)return"Storm";return""}
 function loadWeather(){
   fetch("https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LNG+"&current=temperature_2m,weather_code,is_day&timezone=Asia%2FRiyadh")
-  .then(function(r){return r.json()}).then(function(j){if(!j.current)return;var c=j.current.weather_code;
+  .then(function(r){return r.json()}).then(function(j){if(!j.current)return;netOk.w=1;var c=j.current.weather_code;
     $("wxT").textContent=Math.round(j.current.temperature_2m)+"°";$("wxC").textContent=wxText(c);$("wxI").innerHTML=wxIcon(c,j.current.is_day!==0);$("cWx").hidden=false}).catch(function(){})}
 
 /* ---------- glow background ---------- */
@@ -577,9 +577,14 @@ renderBtns();renderApps();renderCW();renderMovies();renderInfo();paintFocus();
 if(!bgColor)setGlow("#5a1a2a");
 loadData();loadWeather();schedulePrayers();
 setInterval(schedulePrayers,60*60000);
+/* offline at start-up: keep retrying the online parts until they arrive */
+var netOk={d:0,w:0};
+setInterval(function(){if(!netOk.d)loadData();if(!netOk.w)loadWeather()},30000);
+
 setInterval(renderInfo,10000);
 setInterval(loadWeather,30*60000);setInterval(loadData,60*60000);
 setInterval(function(){if(!menuState&&focus.row!==2)renderCW()},60000);
 </script>
+<script>if("serviceWorker"in navigator&&/^https:/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(function(){});</script>
 </body>
 </html>

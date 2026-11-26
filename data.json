@@ -3,10 +3,10 @@
  "trends": {
   "nf": [
    "Never Surrender",
-   "Collision Course",
-   "Me Before You",
-   "Heist",
-   "Crazy Rich, Incredibly Broke"
+   "Heartland",
+   "Steps",
+   "Daayra",
+   "Guarding Stars"
   ],
   "sh": [
    "راعي الأجرب",
@@ -42,7 +42,7 @@
    "Man City",
    "أرسنال",
    "مانشستر سيتي",
-   "beIN SPORTS"
+   "beIN SPORTS 1"
   ],
   [
    "2026-12-02T20:15Z",
@@ -127,7 +127,7 @@
   ]
  ],
  "movies": {
-  "updated": "2026-11-19",
+  "updated": "2026-11-26",
   "picks": [
    {
     "t": "حدوتة",
@@ -173,16 +173,6 @@
     "img": "https://hastv309.github.io/TV/posters/d926ad804493.jpg"
    },
    {
-    "t": "Godzilla Minus Zero",
-    "g": "ACTION",
-    "ar": false,
-    "r": "8.0",
-    "y": 2026,
-    "rt": "2h 15m",
-    "d": "بعد سنتين من دمار اليابان بالحرب وغودزيلا، يبدأ الناس بإعادة البناء حتى يظهر تهديد جديد يهدد كل أمل.",
-    "img": "https://hastv309.github.io/TV/posters/f2e3f7229741.jpg"
-   },
-   {
     "t": "Spider-Man: Brand New Day",
     "g": "ACTION",
     "ar": false,
@@ -193,14 +183,22 @@
     "img": "https://hastv309.github.io/TV/posters/454b9be04587.jpg"
    },
    {
-    "t": "Wasteman",
+    "t": "Dhurandhar: The Revenge",
+    "g": "ACTION",
+    "ar": false,
+    "r": "8.2",
+    "y": 2026,
+    "rt": "",
+    "d": "رانفير سينغ يعود في الجزء الثاني من ملحمة التجسس الهندية بمهمة سرية أخطر وأكثر تشويقًا."
+   },
+   {
+    "t": "Paper Tiger",
     "g": "THRILLER",
     "ar": false,
-    "r": "7.2",
+    "r": "6.9",
     "y": 2026,
-    "rt": "1h 30m",
-    "d": "سجين على وشك الإفراج المشروط يحلم ببداية جديدة، لكن زميل زنزانته الجديد يضعه أمام خيار صعب بين الوفاء والحرية.",
-    "img": "https://hastv309.github.io/TV/posters/b3392ce86589.jpg"
+    "rt": "1h 55m",
+    "d": "شقيقان في كوينز الثمانينيات يطاردان صفقة مربحة فيجدان عائلتهما في مواجهة المافيا الروسية."
    },
    {
     "t": "Crime 101",
@@ -216,7 +214,7 @@
     "t": "The Rip",
     "g": "THRILLER",
     "ar": false,
-    "r": "6.8",
+    "r": "6.7",
     "y": 2026,
     "rt": "1h 53m",
     "p": "nf",
@@ -231,14 +229,12 @@
     "img": "https://hastv309.github.io/TV/posters/f34f251909d4.jpg"
    },
    {
-    "t": "Collision Course",
-    "g": "Thriller",
-    "img": "https://hastv309.github.io/TV/posters/fc76c9b4f4d5.jpg"
+    "t": "Heartland",
+    "g": "Thriller"
    },
    {
-    "t": "Me Before You",
-    "g": "Romance",
-    "img": "https://hastv309.github.io/TV/posters/1bbcc3d4cdfe.jpg"
+    "t": "Steps",
+    "g": "Animation"
    }
   ],
   "sh": [
